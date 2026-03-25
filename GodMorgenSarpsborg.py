@@ -25,157 +25,336 @@ SMTP_PORT = 587
 # Initialiser den nye genai-klienten
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-def hent_wikipedia_data(måned, dag):
-    """Henter hendelser fra engelsk Wikipedia for stabilitet"""
-    url = f"https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/{måned:02d}/{dag:02d}"
-    headers = {
-        'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (kontakt@sa.no)',
-        'Accept': 'application/json'
+def hent_navnedag(måned, dag):
+    """Komplett database over norske navnedager basert på offisiell liste"""
+    navnedager = {
+        (1, 1): "Ingen navnedag (Jesu navnedag)", (1, 2): "Dagfinn og Dagfrid", (1, 3): "Alfred, Alf og Alva",
+        (1, 4): "Roar og Roger", (1, 5): "Hanna og Hanne", (1, 6): "Aslaug, Aisha og Alex", (1, 7): "Eldbjørg og Knut",
+        (1, 8): "Turid og Torfinn", (1, 9): "Gunnar og Gunn", (1, 10): "Sigmund, Sigrun og Sina",
+        (1, 11): "Børge og Børre", (1, 12): "Nelly og Nataniel", (1, 13): "Gisle og Gislaug",
+        (1, 14): "Herbjørn, Herbjørg og Hermine", (1, 15): "Laurits, Laura og Lykke",
+        (1, 16): "Hjalmar, Hilmar og Hassan", (1, 17): "Anton, Tønnes og Tony", (1, 18): "Hildur og Hild",
+        (1, 19): "Marius, Margunn og Matheo", (1, 20): "Fabian, Sebastian og Bastian",
+        (1, 21): "Agnes, Agnete og Abdul", (1, 22): "Ivan, Vanja og Vanessa", (1, 23): "Emil, Emilie og Emma",
+        (1, 24): "Joar, Jarle og Jarl", (1, 25): "Paul og Pål", (1, 26): "Øystein og Esten", (1, 27): "Gaute og Gry",
+        (1, 28): "Karl, Karoline og Carlos", (1, 29): "Herdis, Hermod og Hermann", (1, 30): "Gunnhild og Gunda",
+        (1, 31): "Idun og Ivar",
+        (2, 1): "Birte og Bjarte", (2, 2): "Jomar, Jostein, Omar og Bianca", (2, 3): "Ansgar, Asgeir og Angelika",
+        (2, 4): "Veronika og Vera", (2, 5): "Agate og Ågot", (2, 6): "Dortea, Dorte og Dominik",
+        (2, 7): "Rikard og Rigmor", (2, 8): "Åshild, Åsne og Ådne", (2, 9): "Lone, Leikny og Levi",
+        (2, 10): "Ingfrid og Ingrid", (2, 11): "Ingve og Yngve", (2, 12): "Randi og Ronja",
+        (2, 13): "Svanhild og Scott", (2, 14): "Valentin og Valentina", (2, 15): "Sigbjørn, Silas og Sienna",
+        (2, 16): "Julian, Juliane og Jill", (2, 17): "Aleksandra, Sandra og Sondre",
+        (2, 18): "Frøydis, Frode og Fatima", (2, 19): "Ella, Elna og Ebba", (2, 20): "Halldis og Halldor",
+        (2, 21): "Samuel, Selma og Celine", (2, 22): "Tina, Tim og Tilde", (2, 23): "Torstein og Torunn",
+        (2, 24): "Mattias, Mattis og Mats", (2, 25): "Viktor, Viktoria og Vincent", (2, 26): "Inger og Ingjerd",
+        (2, 27): "Leander, Laila og Lill", (2, 28): "Marina, Maren og Mira", (2, 29): "Ingen navnedag",
+        (3, 1): "Audny og Audun", (3, 2): "Erna og Ernst", (3, 3): "Gunnbjørg, Gunnveig og Gunnlaug",
+        (3, 4): "Ada, Adrian og Adele", (3, 5): "Patrick og Patricia", (3, 6): "Annfrid, Aida og Alida",
+        (3, 7): "Arild, Are og Ali", (3, 8): "Beate, Betty og Bettina", (3, 9): "Sverre og Sindre",
+        (3, 10): "Edel og Edle", (3, 11): "Edvin og Tale", (3, 12): "Gregor og Gro", (3, 13): "Greta og Grete",
+        (3, 14): "Mathilde, Mette og Mille", (3, 15): "Christel, Christer og Chris", (3, 16): "Gudmund og Gudny",
+        (3, 17): "Gjertrud og Trude", (3, 18): "Aleksander, Sander og Edvard", (3, 19): "Josef, Josefine og Joel",
+        (3, 20): "Joakim og Kim", (3, 21): "Bendik, Bengt og Bent", (3, 22): "Paula og Pauline",
+        (3, 23): "Gerda og Gerd", (3, 24): "Ulrikke og Rikke", (3, 25): "Maria, Marie og Mari",
+        (3, 26): "Gabriel og Glenn", (3, 27): "Rudolf og Rudi", (3, 28): "Åsta og Åste", (3, 29): "Jonas og Jonatan",
+        (3, 30): "Holger, Olga og Olai", (3, 31): "Vebjørn og Vegard",
+        (4, 1): "Aron, Arve og Arvid", (4, 2): "Sigvard og Sivert", (4, 3): "Gunnvald og Gunvor",
+        (4, 4): "Nanna, Nancy og Nina", (4, 5): "Irene, Eirin og Eiril", (4, 6): "Åsmund og Asmund",
+        (4, 7): "Oddveig og Oddvin", (4, 8): "Asle, Atle og Ava", (4, 9): "Rannveig og Rønnaug",
+        (4, 10): "Ingvald og Ingveig", (4, 11): "Ylva og Ulf", (4, 12): "Julius og Julie", (4, 13): "Asta og Astrid",
+        (4, 14): "Ellinor, Nora og Noah", (4, 15): "Oda, Odin og Odd", (4, 16): "Magnus, Mons og Mohammad",
+        (4, 17): "Elise, Else og Elsa", (4, 18): "Eilen og Eilert", (4, 19): "Arnfinn, Arnstein og Alvin",
+        (4, 20): "Kjellaug og Kjellrun", (4, 21): "Jeanette, Jannike og Jessica", (4, 22): "Oddgeir og Oddny",
+        (4, 23): "Georg, Jørgen og Jørn", (4, 24): "Albert, Olaug og Olivia", (4, 25): "Markus, Mark og Marco",
+        (4, 26): "Terese, Tea og Telma", (4, 27): "Charles, Charlotte og Lotte", (4, 28): "Vivi, Vivian og Viljar",
+        (4, 29): "Toralf og Torolf", (4, 30): "Gina og Gitte",
+        (5, 1): "Filip, Valborg og Filippa", (5, 2): "Åsa og Åse", (5, 3): "Gjermund og Gøril",
+        (5, 4): "Monika, Mona og Milla", (5, 5): "Nicole, Noel og Noor", (5, 6): "Guri, Gyri og Gudbrand",
+        (5, 7): "Maia, Mai og Maiken", (5, 8): "Åge, Åke og Åslaug", (5, 9): "Kasper, Jesper og Kaspian",
+        (5, 10): "Asbjørg, Asbjørn og Espen", (5, 11): "Magda, Malvin og Madelen", (5, 12): "Normann og Norvald",
+        (5, 13): "Linda, Line og Linn", (5, 14): "Kristian, Kristen og Karsten", (5, 15): "Hallvard og Halvor",
+        (5, 16): "Sara, Siren og Samira", (5, 17): "Harald og Ragnhild", (5, 18): "Eirik, Erik og Erika",
+        (5, 19): "Torjus, Torje og Truls", (5, 20): "Bjørnar og Bror", (5, 21): "Helene, Ellen og Eli",
+        (5, 22): "Henning og Henny", (5, 23): "Oddleif og Oddlaug", (5, 24): "Ester og Iris",
+        (5, 25): "Ragna og Ragnar", (5, 26): "Annbjørg, Annlaug og Anneli", (5, 27): "Katinka, Cato og Carmen",
+        (5, 28): "Vilhelm, William og Willy", (5, 29): "Magnar, Magnhild og Mario", (5, 30): "Gard og Geir",
+        (5, 31): "Pernille og Preben",
+        (6, 1): "June og Juni", (6, 2): "Runa, Runar og Rune", (6, 3): "Rasmus, Rakel og Rafael",
+        (6, 4): "Heidi, Heid og Helmer", (6, 5): "Torbjørg, Torbjørn og Torben", (6, 6): "Gustav og Gyda",
+        (6, 7): "Robert og Robin", (6, 8): "Renate og René", (6, 9): "Kolbjørn og Kassandra",
+        (6, 10): "Ingolf og Ingunn", (6, 11): "Borgar, Bjørge og Bjørg", (6, 12): "Sigfrid, Sigrid og Siri",
+        (6, 13): "Tone, Tonje og Tanja", (6, 14): "Erlend, Erland og Erle", (6, 15): "Vigdis, Viggo og Vilja",
+        (6, 16): "Torhild, Toril og Tiril", (6, 17): "Botolv og Bodil", (6, 18): "Bjarne og Bjørn",
+        (6, 19): "Erling, Elling og Ellie", (6, 20): "Sølve og Sølvi", (6, 21): "Agnar, Annar og Ahmed",
+        (6, 22): "Håkon og Maud", (6, 23): "Elfrid, Eldrid og Elliot", (6, 24): "Johannes, Jon og Hans",
+        (6, 25): "Jørund og Jorunn", (6, 26): "Jenny, Jonny og Jennifer", (6, 27): "Aina, Ina og Ine",
+        (6, 28): "Lea, Leo og Leon", (6, 29): "Peter, Petter og Per", (6, 30): "Solbjørg, Solgunn og Sol",
+        (7, 1): "Ask og Embla", (7, 2): "Kjartan og Kjellfrid", (7, 3): "Andrea, Andrine og André",
+        (7, 4): "Ulrik og Ulla", (7, 5): "Mirjam, Mina og Michelle", (7, 6): "Torgrim og Torgunn",
+        (7, 7): "Håvard, Hulda og Hussein", (7, 8): "Sunniva, Synnøve og Synne", (7, 9): "Gøran, Jøran og Ørjan",
+        (7, 10): "Anita, Anja og Amina", (7, 11): "Kjetil og Kjell", (7, 12): "Elias, Eldar og Elida",
+        (7, 13): "Mildrid, Melissa og Mia", (7, 14): "Solfrid, Solrun og Frøya", (7, 15): "Oddmund og Oddrun",
+        (7, 16): "Susanne, Sanna og Saga", (7, 17): "Guttorm og Gorm", (7, 18): "Arnulf og Ørnulf",
+        (7, 19): "Gerhard og Gjert", (7, 20): "Margareta, Margit og Marit", (7, 21): "Johanne, Janne og Jane",
+        (7, 22): "Malene, Malin og Mali", (7, 23): "Brita, Brit og Britt", (7, 24): "Kristine, Kristin og Kristi",
+        (7, 25): "Jakob, Jack og Jim", (7, 26): "Anna, Anne og Ane", (7, 27): "Marita og Rita",
+        (7, 28): "Reidar og Reidun", (7, 29): "Olav, Ola og Ole", (7, 30): "Aurora, Audhild og Aud",
+        (7, 31): "Elin, Eline og Elina",
+        (8, 1): "Peder og Petra", (8, 2): "Karen, Karin og Karina", (8, 3): "Oline, Oliver og Olve",
+        (8, 4): "Arnhild, Arna og Arne", (8, 5): "Osvald og Oskar", (8, 6): "Loke, Lilja og Luis",
+        (8, 7): "Didrik og Doris", (8, 8): "Evy, Yvonne og Yasmin", (8, 9): "Ronald og Ronny",
+        (8, 10): "Lorents, Lars og Lasse", (8, 11): "Torvald, Tarald og Tara", (8, 12): "Klara, Camilla og Lara",
+        (8, 13): "Anny, Anine og Ann", (8, 14): "Stella og Storm", (8, 15): "Margot, Mary og Marielle",
+        (8, 16): "Brage, Brynjulf og Brynhild", (8, 17): "Verner og Wenche", (8, 18): "Tormod, Torodd og Valdemar",
+        (8, 19): "Sigvald og Sigve", (8, 20): "Bernhard og Bernt", (8, 21): "Ragnvald og Ragni",
+        (8, 22): "Harriet og Harry", (8, 23): "Signe og Signy", (8, 24): "Belinda og Bertil",
+        (8, 25): "Ludvig, Lovise og Louise", (8, 26): "Øyvind, Eivind og Even", (8, 27): "Roald og Rolf",
+        (8, 28): "Artur, August og Angela", (8, 29): "Johan, Jone og Jo", (8, 30): "Benjamin og Ben",
+        (8, 31): "Aria, Ariana og Ariel",
+        (9, 1): "Solveig og Solvor", (9, 2): "Lisa, Lise og Liss", (9, 3): "Alise, Alvhild og Vilde",
+        (9, 4): "Ida, Idar og Iben", (9, 5): "Brede, Brian og Njål", (9, 6): "Siril og Siv", (9, 7): "Regine og Rose",
+        (9, 8): "Amalie, Alma og Allan", (9, 9): "Trygve, Tyra og Trym", (9, 10): "Tord og Tor",
+        (9, 11): "Dagny, Dag og Damian", (9, 12): "Jofrid og Jorid", (9, 13): "Stian og Stig",
+        (9, 14): "Ingebjørg og Ingeborg", (9, 15): "Aslak, Eskil og Ailo", (9, 16): "Lillian, Lilly og Linnea",
+        (9, 17): "Hildegunn og Hjørdis", (9, 18): "Henriette og Henry", (9, 19): "Konstanse, Connie og Kornelia",
+        (9, 20): "Tobias og Tage", (9, 21): "Trine, Trond og Tamara", (9, 22): "Kyrre og Kåre",
+        (9, 23): "Snorre og Snefrid", (9, 24): "Jan og Jens", (9, 25): "Ingvar og Yngvar",
+        (9, 26): "Einar, Endre og Elvira", (9, 27): "Dagmar og Dagrun", (9, 28): "Lena, Lene og Elena",
+        (9, 29): "Mikael, Mikal og Mikkel", (9, 30): "Helga, Helge og Hege",
+        (10, 1): "Rebekka og Remi", (10, 2): "Live, Liv og Linus", (10, 3): "Evald, Evelyn og Emine",
+        (10, 4): "Frans, Frank og Fanny", (10, 5): "Brynjar, Boye og Bo", (10, 6): "Målfrid, Møyfrid og Mio",
+        (10, 7): "Birgitte, Birgit og Berit", (10, 8): "Benedikte og Bente", (10, 9): "Leif, Liam og Dennis",
+        (10, 10): "Fridtjof, Frida og Frits", (10, 11): "Kevin, Kennet og Kent", (10, 12): "Valter, Vibeke og Vilma",
+        (10, 13): "Terje, Tarjei og Torgeir", (10, 14): "Kaia, Kai og Kaisa", (10, 15): "Hedvig og Hedda",
+        (10, 16): "Finn, Felix og Ferdinand", (10, 17): "Marta, Marte og Mathea",
+        (10, 18): "Kjersti, Kjerstin og Lukas", (10, 19): "Tora og Tore", (10, 20): "Henrik, Heine og Henrikke",
+        (10, 21): "Bergljot, Birger og Birk", (10, 22): "Karianne, Karine og Kine", (10, 23): "Severin, Søren og Sean",
+        (10, 24): "Eilif, Eivor og Emrik", (10, 25): "Margrete, Merete og Märta", (10, 26): "Amandus og Amanda",
+        (10, 27): "Sturla og Sture", (10, 28): "Simon, Simen og Simone", (10, 29): "Norunn, Naomi og Nikoline",
+        (10, 30): "Aksel og Ove", (10, 31): "Edit og Edna",
+        (11, 1): "Veslemøy og Vetle", (11, 2): "Tove og Tuva", (11, 3): "Raymond og Roy",
+        (11, 4): "Otto, Ottar og Otilie", (11, 5): "Egil, Egon og Eira", (11, 6): "Leonard, Lennart og Leonora",
+        (11, 7): "Ingebrigt og Ingelin", (11, 8): "Ingvild og Yngvild", (11, 9): "Tordis, Teodor og Theo",
+        (11, 10): "Gudbjørg og Gudveig", (11, 11): "Martin, Morten og Martine", (11, 12): "Torkjell, Torkil og Tomine",
+        (11, 13): "Kirsten og Kirsti", (11, 14): "Fredrik, Fred og Freddy", (11, 15): "Oddfrid og Oddvar",
+        (11, 16): "Edmund, Edgar og Emilian", (11, 17): "Hugo, Hogne og Hauk", (11, 18): "Magne og Magny",
+        (11, 19): "Elisabet og Lisbet", (11, 20): "Halvdan og Helle", (11, 21): "Mariann, Marianne og Max",
+        (11, 22): "Cecilie, Silje og Sissel", (11, 23): "Klement, Klaus og Klaudia", (11, 24): "Gudrun og Guro",
+        (11, 25): "Katarina, Katrine og Kari", (11, 26): "Konrad og Kurt", (11, 27): "Torlaug, Torleif og Colin",
+        (11, 28): "Ruben og Rut", (11, 29): "Sofie, Sonja og Sofia", (11, 30): "Andreas, Anders og Ana",
+        (12, 1): "Arnold, Arnljot og Arnt", (12, 2): "Borghild, Borgny og Bård", (12, 3): "Sveinung og Svein",
+        (12, 4): "Barbara og Barbro", (12, 5): "Stine og Ståle", (12, 6): "Nikolai, Nils og Niklas",
+        (12, 7): "Hallfrid, Hallstein og Hallgeir", (12, 8): "Marlene, Marion og Morgan", (12, 9): "Anniken og Annette",
+        (12, 10): "Judit, James og Jardar", (12, 11): "Daniel, Dan og Daniela", (12, 12): "Pia og Peggy",
+        (12, 13): "Lucia, Lydia og Luna", (12, 14): "Steinar og Stein", (12, 15): "Hilda og Hilde",
+        (12, 16): "Oddbjørg og Oddbjørn", (12, 17): "Inga, Inge og Iman", (12, 18): "Kristoffer, Kate og Kristiane",
+        (12, 19): "Iselin, Isak og Isa", (12, 20): "Abraham, Amund og Abel", (12, 21): "Tomas, Tom og Tommy",
+        (12, 22): "Ingemar og Ingar", (12, 23): "Sigurd og Sjur", (12, 24): "Adam og Eva",
+        (12, 26): "Stefan, Steffen og Steven", (12, 27): "Narve, Natalie og Nadia", (12, 28): "Unni, Une og Unn",
+        (12, 29): "Vidar, Vemund og Vårin", (12, 30): "David, Diana og Dina", (12, 31): "Sylfest, Sylvia og Sylvi"
     }
-    
+    return navnedager.get((måned, dag), "Ingen navnedag")
+
+
+def hent_wikipedia_data(måned, dag):
+    """Henter hendelser fra Wikipedia med flertrinns fallback for å sikre innhold"""
+    kilder = [
+        f"https://no.wikipedia.org/api/rest_v1/feed/onthisday/all/{måned:02d}/{dag:02d}",
+        f"https://no.wikipedia.org/api/rest_v1/feed/onthisday/selected/{måned:02d}/{dag:02d}",
+        f"https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{måned:02d}/{dag:02d}"
+    ]
+    headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
+    for url in kilder:
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                events = data.get('events') or data.get('selected') or []
+                resultater = [e['text'] for e in events if isinstance(e, dict) and 'text' in e]
+                if resultater: return resultater[:15]
+        except:
+            continue
+    return []
+
+
+def hent_vaer_data():
+    """Henter utvidet værdata for Sarpsborg fra Met.no"""
+    url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=59.28&lon=11.11"
+    headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        
-        events_data = data.get('events', [])
-        hendelser = []
-        for event in events_data:
-            if isinstance(event, dict) and 'text' in event:
-                hendelser.append(event['text'])
-                
-        return {"hendelser": hendelser[:5], "navnedager": "Maria, Mari, Mareno"}
-    except Exception as e:
-        print(f"Feil ved henting av Wikipedia-data: {e}")
+
+        timeseries = data['properties']['timeseries']
+        # Nå-data
+        now = timeseries[0]['data']['instant']['details']
+        temp_nu = now['air_temperature']
+        forhold_nu = timeseries[0]['data']['next_1_hours']['summary']['symbol_code']
+
+        # Finn max/min for de neste 12 timene
+        temp_liste = [t['data']['instant']['details']['air_temperature'] for t in timeseries[:12]]
+        max_temp = max(temp_liste)
+        min_temp = min(temp_liste)
+
+        # Oversikt for neste 6 timer
+        neste_6h = timeseries[0]['data']['next_6_hours']['summary']['symbol_code']
+
+        return {
+            "temp": temp_nu,
+            "max": max_temp,
+            "min": min_temp,
+            "forhold": forhold_nu.replace('_', ' '),
+            "neste_6h": neste_6h.replace('_', ' ')
+        }
+    except:
+        return {"temp": "ukjent", "max": "ukjent", "min": "ukjent", "forhold": "varierende", "neste_6h": "varierende"}
+
+
+def beregn_dagslys_endring(dato):
+    """Beregner endring i dagslys siden siste solverv (omtrentlig)"""
+    # Vintersolverv er ca 21. des, Sommersolverv ca 21. juni
+    solverv = datetime.datetime(dato.year if dato.month > 6 else dato.year - 1, 12, 21)
+    if dato.month > 6 and dato.day > 21:
+        solverv = datetime.datetime(dato.year, 6, 21)
+
+    dager_siden = abs((dato - solverv).days)
+    # Enkel sinusmodell for dagslysendring i minutter (Veldig forenklet for Sarpsborg-breddegrad)
+    # Dette gir KI-en et tall å forholde seg til.
+    minutter = round(dager_siden * 4)  # Gjennomsnittlig 4 min endring per dag rundt jevndøgn
+    status = "lengre" if solverv.month == 12 else "kortere"
+    return f"Dagen er nå ca. {minutter} minutter {status} enn ved solverv."
+
+
+def hent_sol_data(dato):
+    """Henter soltider"""
+    url = f"https://api.met.no/weatherapi/sunrise/3.0/sun?lat=59.28&lon=11.11&date={dato.strftime('%Y-%m-%d')}&offset=+01:00"
+    headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
+    try:
+        res = requests.get(url, headers=headers).json()
+        opp = res['properties']['sunrise']['time'][11:16]
+        ned = res['properties']['sunset']['time'][11:16]
+        return {"opp": opp, "ned": ned}
+    except:
         return None
 
-def generer_artikkeltekst(dato_tekst, wiki_data):
-    """Bruker KI for å skrive brødteksten i saken"""
+
+def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
+    """Bruker Python-data for å generere teksten via Gemini"""
+    dag_nr = morgen.timetuple().tm_yday
+    skuddår = (morgen.year % 4 == 0 and (morgen.year % 100 != 0 or morgen.year % 400 == 0))
+    dager_i_år = 366 if skuddår else 365
+    dager_igjen = dager_i_år - dag_nr
+    navnedag = hent_navnedag(morgen.month, morgen.day)
+    ukedag = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"][morgen.weekday()]
+    måned_navn = \
+    ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november",
+     "desember"][morgen.month - 1]
+    dato_full = f"{ukedag} {morgen.day}. {måned_navn} {morgen.year}"
+
+    sol_info = f"Sola står opp kl. {sol['opp']} og går ned kl. {sol['ned']}." if sol else ""
+    lys_endring = beregn_dagslys_endring(morgen)
+
     prompt = f"""
-    Du er morgen-journalist for lokalavisen Sarpsborg Arbeiderblad (SA).
-    Din oppgave er å skrive spalten "God morgen, Sarpsborg!".
-    
-    VIKTIG KONTEKST:
-    Denne teksten skal publiseres kl. 06:00 den {dato_tekst}. 
-    Du skal skrive teksten som om det er akkurat denne dagen NÅ. 
-    Bruk nåtidsform (f.eks. "I dag er det...", "Slik ser været ut i dag...").
-    
-    Historiske hendelser (på engelsk):
-    {chr(10).join(wiki_data['hendelser'])}
-    
-    Dagens navnedager er: {wiki_data['navnedager']}
-    
-    Været for Sarpsborg i dag (fiktiv data): Delvis skyet, 8 grader, svak bris fra sørøst.
-    
-    OPPGAVE:
-    1. Start med en hyggelig hilsen ("Det er [ukedag] [dato]...").
-    2. Lag en seksjon med en <h3> med tittelen "Dagen i dag".
-    3. Lag en <ul> (HTML-liste) som trekker frem de 3 mest interessante historiske hendelsene omskrevet til norsk.
-    4. Lag en kort setning om hvem som har navnedag.
-    5. Legg til en seksjon med en <h3> med tittelen "Vær", og skriv et kort, vennlig avsnitt om været med lokal tilknytning til Sarpsborg.
-    
-    KRAV:
-    - Formater svaret KUN i ren HTML uten ```html tags rundt.
-    - Bruk kun <h3> og <ul>/<li> for strukturering.
-    - Tone: Morgenfrisk, lokal og hyggelig.
+    Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
+
+    DATA DU SKAL BRUKE (VÆR STRENGT NØYAKTIG):
+    - Dato: {dato_full} (Dag {dag_nr}/{dager_i_år}, {dager_igjen} igjen)
+    - Navnedag: {navnedag}
+    - VÆRDATA NÅ: {vaer['temp']} grader, {vaer['forhold']}.
+    - VÆRDATA RESTEN AV DAGEN: Max {vaer['max']}°C, Min {vaer['min']}°C. Utsiktene de neste timene er {vaer['neste_6h']}.
+    - SOL: {sol_info}. {lys_endring}
+    - HISTORIE: {chr(10).join(wiki_hendelser)}
+
+    STRUKTUR (KUN REN TEKST, INGEN MARKDOWN):
+    1. Tittel: God morgen, Sarpsborg!
+    2. Intro: Hyggelig hilsen med dato og dager igjen av året.
+    3. Navnedag: Nevn {navnedag}.
+    4. Mellomtittel: Dagen i dag
+    5. Historie: Gjenfortell 3 korte hendelser fra listen. Prioriter Norge.
+    6. Mellomtittel: Været
+    7. Vær-tekst: Beskriv været nøyaktig basert på tallene over. Bruk {vaer['temp']} grader som utgangspunkt. Nevn max-temp på {vaer['max']} grader og utsiktene ({vaer['neste_6h']}). Få med soltider og dagslys-endring. Nevn gjerne en lokal referanse.
+    8. Plassholder: [Plass for værembed her]
+    9. Mellomtittel: Trafikk
+    10. Trafikk-tekst: Skal du ut i trafikken? Se her hvordan trafikken er nå og hvor lang reisetid du bør beregne:
+    11. Plassholder: [Plass for reisetid-embed her]
+    12. Trafikk-tekst: Her kan du se trafikken over Sarpsbrua direkte:
+    13. Plassholder: [Plass for Sarpsbrua-embed her]
+    14. Trafikk-tekst: På disse kameraene fra Statens vegvesen kan du følge trafikken på E6 direkte:
+    15. Plassholder: [Plass for E6-embed her]
+    16. Mellomtittel: Strømprisen
+    17. Strøm-tekst: Her er dagens strømpriser time for time:
+    18. Plassholder: [Plass for strøm-embed her]
+    19. Avslutning: "Vi ønsker alle våre lesere en strålende dag!"
+
+    VIKTIG: Hold værmeldingen faktuelt korrekt etter dataene. Ikke finn på vær som ikke står i tallene. Ingen # eller *.
     """
-    
-    response = client.models.generate_content(
-        model=GEMINI_MODELL,
-        contents=prompt,
-        config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=1500)
-    )
-    return response.text
+    for i in range(5):
+        try:
+            res = client.models.generate_content(
+                model=GEMINI_MODELL,
+                contents=prompt,
+                config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=3000)
+            )
+            if res.text: return res.text
+        except:
+            time.sleep((2 ** i) + 1)
+    return "Feil ved generering av tekst."
+
 
 def bygg_ferdig_html(artikkel_tekst):
-    """Setter sammen KI-teksten med de faktiske smartembedsene fra Cue"""
-    # Vi rydder URL-ene slik at de er 100% rene for Cue-innliming
-    html_mal = f"""
+    """Lager den ferdige e-posten"""
+    return f"""
     <html>
-    <body style="font-family: sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
-        <div style="max-width: 650px; margin: auto; background: white; border: 1px solid #ddd; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h1 style="color: #d32f2f; margin-top: 0;">Forslag: God morgen, Sarpsborg</h1>
-            
-            <div style="background: #fff3e0; padding: 15px; border-left: 5px solid #ff9800; margin-bottom: 25px;">
-                <strong>Instruks for redaksjonen:</strong><br>
-                Dette er et KI-generert forslag for i morgen. Kopier HTML-koden nedenfor og lim den inn i en HTML-blokk i Cue.
-            </div>
-            
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
-            
-            <div style="padding: 15px; border: 2px dashed #d32f2f; background: #fafafa; font-family: monospace; font-size: 13px; color: #444; overflow-x: auto;">
-                &lt;div class="sa-god-morgen-article"&gt;<br>
-                {artikkel_tekst}<br>
-                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100](https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100)"&gt;Vær&lt;/a&gt;&lt;/div&gt;<br>
-                &lt;hr&gt;<br>
-                &lt;h3&gt;Trafikk&lt;/h3&gt;<br>
-                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg](https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg)"&gt;Trafikk&lt;/a&gt;&lt;/div&gt;<br>
-                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/trafikk-webkamera](https://www.sa.no/api/graff/v1/component/trafikk-webkamera)"&gt;Kamera&lt;/a&gt;&lt;/div&gt;<br>
-                &lt;hr&gt;<br>
-                &lt;h3&gt;Strømprisen&lt;/h3&gt;<br>
-                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/strom-timepris](https://www.sa.no/api/graff/v1/component/strom-timepris)"&gt;Strøm&lt;/a&gt;&lt;/div&gt;<br>
-                &lt;hr&gt;<br>
-                &lt;div class="cue-embed"&gt;&lt;a href="[https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&amp;publication=www.sa.no&amp;tag=Sa.tv&amp;title=Siste+videoer+fra+sa.no&amp;limit=20](https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&amp;publication=www.sa.no&amp;tag=Sa.tv&amp;title=Siste+videoer+fra+sa.no&amp;limit=20)"&gt;Video&lt;/a&gt;&lt;/div&gt;<br>
-                &lt;/div&gt;
-            </div>
-            
-            <div style="margin-top: 25px; font-size: 14px; color: #666;">
-                <h3>Forhåndsvisning:</h3>
-                <div style="border: 1px solid #eee; padding: 15px; background: #fff;">
-                    {artikkel_tekst}
-                </div>
+    <body style="font-family: sans-serif; line-height: 1.6; padding: 20px;">
+        <div style="max-width: 650px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+            <h2 style="color: #d32f2f;">KI-forslag: God morgen, Sarpsborg</h2>
+            <div style="white-space: pre-wrap; background: #fafafa; padding: 15px; border: 1px solid #eee;">
+{artikkel_tekst}
+
+--- SMART-EMBED LENKER ---
+Vær: https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100
+Trafikk: https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg
+Kamera: https://www.sa.no/api/graff/v1/component/trafikk-webkamera
+Strøm: https://www.sa.no/api/graff/v1/component/strom-timepris
+Video: https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&publication=www.sa.no&tag=Sa.tv&title=Siste+videoer+fra+sa.no&limit=20
             </div>
         </div>
     </body>
     </html>
     """
-    return html_mal
 
-def send_epost(html_innhold, dato_str):
-    """Sender det ferdige resultatet på e-post via SMTP"""
-    if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        print("E-post-legitimasjon mangler i miljøvariabler.")
-        return
 
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = f"KI-forslag: God morgen, Sarpsborg ({dato_str})"
-
-    msg.attach(MIMEText(html_innhold, 'html'))
-
+def send_epost(html, emne):
+    """Sender e-post"""
+    if not EMAIL_SENDER or not EMAIL_PASSWORD: return
+    msg = MIMEMultipart();
+    msg['From'] = EMAIL_SENDER;
+    msg['To'] = EMAIL_RECEIVER;
+    msg['Subject'] = emne
+    msg.attach(MIMEText(html, 'html'))
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print(f"E-post sendt til {EMAIL_RECEIVER}!")
+        s = smtplib.SMTP(SMTP_SERVER, SMTP_PORT);
+        s.starttls();
+        s.login(EMAIL_SENDER, EMAIL_PASSWORD)
+        s.send_message(msg);
+        s.quit();
+        print("E-post sendt!")
     except Exception as e:
-        print(f"Feil ved sending av e-post: {e}")
+        print(f"E-post-feil: {e}")
+
 
 def hovedprosess():
-    # Vi henter data for MORGENDAGEN
-    i_dag = datetime.datetime.now()
-    morgen = i_dag + datetime.timedelta(days=1)
-    
-    ukedager = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
-    måneder = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
-    
-    dato_tekst = f"{ukedager[morgen.weekday()]} {morgen.day}. {måneder[morgen.month - 1]}"
-    print(f"Starter generering for: {dato_tekst}")
-    
-    wiki_data = hent_wikipedia_data(morgen.month, morgen.day)
-    
-    if wiki_data:
-        artikkel_tekst = generer_artikkeltekst(dato_tekst, wiki_data)
-        ferdig_html = bygg_ferdig_html(artikkel_tekst)
-        
-        # Send til redaksjonen
-        send_epost(ferdig_html, dato_tekst)
-        print("Prosess fullført uten feil.")
-    else:
-        print("Feil: Kunne ikke hente Wikipedia-data.")
+    morgen = datetime.datetime.now() + datetime.timedelta(days=1)
+    print(f"Starter generering for {morgen.strftime('%d.%m.%Y')}...")
+    wiki = hent_wikipedia_data(morgen.month, morgen.day)
+    vaer = hent_vaer_data()
+    sol = hent_sol_data(morgen)
+    artikkel = generer_artikkeltekst(morgen, wiki, vaer, sol)
+    html = bygg_ferdig_html(artikkel)
+    send_epost(html, f"God morgen, Sarpsborg ({morgen.strftime('%d.%m')})")
+
 
 if __name__ == "__main__":
     hovedprosess()
