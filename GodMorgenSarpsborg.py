@@ -13,7 +13,7 @@ from google.genai import types
 # I GitHub Actions setter du disse under Settings -> Secrets and variables -> Actions
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 # Oppdatert til nyeste modellversjon
-GEMINI_MODELL = "gemini-3-flash"
+GEMINI_MODELL = "gemini-2.5-flash"
 
 # E-post konfigurasjon (Google Workspace / Gmail)
 EMAIL_SENDER = os.environ.get("EMAIL_SENDER")  
