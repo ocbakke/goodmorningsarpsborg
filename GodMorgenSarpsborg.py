@@ -28,6 +28,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 def hent_navnedag(måned, dag):
     """Komplett database over norske navnedager basert på offisiell liste"""
     navnedager = {
+        # JANUAR
         (1, 1): "Ingen navnedag (Jesu navnedag)", (1, 2): "Dagfinn og Dagfrid", (1, 3): "Alfred, Alf og Alva",
         (1, 4): "Roar og Roger", (1, 5): "Hanna og Hanne", (1, 6): "Aslaug, Aisha og Alex", (1, 7): "Eldbjørg og Knut",
         (1, 8): "Turid og Torfinn", (1, 9): "Gunnar og Gunn", (1, 10): "Sigmund, Sigrun og Sina",
@@ -39,6 +40,7 @@ def hent_navnedag(måned, dag):
         (1, 24): "Joar, Jarle og Jarl", (1, 25): "Paul og Pål", (1, 26): "Øystein og Esten", (1, 27): "Gaute og Gry",
         (1, 28): "Karl, Karoline og Carlos", (1, 29): "Herdis, Hermod og Hermann", (1, 30): "Gunnhild og Gunda",
         (1, 31): "Idun og Ivar",
+        # FEBRUAR
         (2, 1): "Birte og Bjarte", (2, 2): "Jomar, Jostein, Omar og Bianca", (2, 3): "Ansgar, Asgeir og Angelika",
         (2, 4): "Veronika og Vera", (2, 5): "Agate og Ågot", (2, 6): "Dortea, Dorte og Dominik",
         (2, 7): "Rikard og Rigmor", (2, 8): "Åshild, Åsne og Ådne", (2, 9): "Lone, Leikny og Levi",
@@ -49,6 +51,7 @@ def hent_navnedag(måned, dag):
         (2, 21): "Samuel, Selma og Celine", (2, 22): "Tina, Tim og Tilde", (2, 23): "Torstein og Torunn",
         (2, 24): "Mattias, Mattis og Mats", (2, 25): "Viktor, Viktoria og Vincent", (2, 26): "Inger og Ingjerd",
         (2, 27): "Leander, Laila og Lill", (2, 28): "Marina, Maren og Mira", (2, 29): "Ingen navnedag",
+        # MARS
         (3, 1): "Audny og Audun", (3, 2): "Erna og Ernst", (3, 3): "Gunnbjørg, Gunnveig og Gunnlaug",
         (3, 4): "Ada, Adrian og Adele", (3, 5): "Patrick og Patricia", (3, 6): "Annfrid, Aida og Alida",
         (3, 7): "Arild, Are og Ali", (3, 8): "Beate, Betty og Bettina", (3, 9): "Sverre og Sindre",
@@ -59,6 +62,7 @@ def hent_navnedag(måned, dag):
         (3, 23): "Gerda og Gerd", (3, 24): "Ulrikke og Rikke", (3, 25): "Maria, Marie og Mari",
         (3, 26): "Gabriel og Glenn", (3, 27): "Rudolf og Rudi", (3, 28): "Åsta og Åste", (3, 29): "Jonas og Jonatan",
         (3, 30): "Holger, Olga og Olai", (3, 31): "Vebjørn og Vegard",
+        # APRIL
         (4, 1): "Aron, Arve og Arvid", (4, 2): "Sigvard og Sivert", (4, 3): "Gunnvald og Gunvor",
         (4, 4): "Nanna, Nancy og Nina", (4, 5): "Irene, Eirin og Eiril", (4, 6): "Åsmund og Asmund",
         (4, 7): "Oddveig og Oddvin", (4, 8): "Asle, Atle og Ava", (4, 9): "Rannveig og Rønnaug",
@@ -69,6 +73,7 @@ def hent_navnedag(måned, dag):
         (4, 23): "Georg, Jørgen og Jørn", (4, 24): "Albert, Olaug og Olivia", (4, 25): "Markus, Mark og Marco",
         (4, 26): "Terese, Tea og Telma", (4, 27): "Charles, Charlotte og Lotte", (4, 28): "Vivi, Vivian og Viljar",
         (4, 29): "Toralf og Torolf", (4, 30): "Gina og Gitte",
+        # MAI
         (5, 1): "Filip, Valborg og Filippa", (5, 2): "Åsa og Åse", (5, 3): "Gjermund og Gøril",
         (5, 4): "Monika, Mona og Milla", (5, 5): "Nicole, Noel og Noor", (5, 6): "Guri, Gyri og Gudbrand",
         (5, 7): "Maia, Mai og Maiken", (5, 8): "Åge, Åke og Åslaug", (5, 9): "Kasper, Jesper og Kaspian",
@@ -80,6 +85,7 @@ def hent_navnedag(måned, dag):
         (5, 25): "Ragna og Ragnar", (5, 26): "Annbjørg, Annlaug og Anneli", (5, 27): "Katinka, Cato og Carmen",
         (5, 28): "Vilhelm, William og Willy", (5, 29): "Magnar, Magnhild og Mario", (5, 30): "Gard og Geir",
         (5, 31): "Pernille og Preben",
+        # JUNI
         (6, 1): "June og Juni", (6, 2): "Runa, Runar og Rune", (6, 3): "Rasmus, Rakel og Rafael",
         (6, 4): "Heidi, Heid og Helmer", (6, 5): "Torbjørg, Torbjørn og Torben", (6, 6): "Gustav og Gyda",
         (6, 7): "Robert og Robin", (6, 8): "Renate og René", (6, 9): "Kolbjørn og Kassandra",
@@ -90,6 +96,7 @@ def hent_navnedag(måned, dag):
         (6, 22): "Håkon og Maud", (6, 23): "Elfrid, Eldrid og Elliot", (6, 24): "Johannes, Jon og Hans",
         (6, 25): "Jørund og Jorunn", (6, 26): "Jenny, Jonny og Jennifer", (6, 27): "Aina, Ina og Ine",
         (6, 28): "Lea, Leo og Leon", (6, 29): "Peter, Petter og Per", (6, 30): "Solbjørg, Solgunn og Sol",
+        # JULI
         (7, 1): "Ask og Embla", (7, 2): "Kjartan og Kjellfrid", (7, 3): "Andrea, Andrine og André",
         (7, 4): "Ulrik og Ulla", (7, 5): "Mirjam, Mina og Michelle", (7, 6): "Torgrim og Torgunn",
         (7, 7): "Håvard, Hulda og Hussein", (7, 8): "Sunniva, Synnøve og Synne", (7, 9): "Gøran, Jøran og Ørjan",
@@ -101,6 +108,7 @@ def hent_navnedag(måned, dag):
         (7, 25): "Jakob, Jack og Jim", (7, 26): "Anna, Anne og Ane", (7, 27): "Marita og Rita",
         (7, 28): "Reidar og Reidun", (7, 29): "Olav, Ola og Ole", (7, 30): "Aurora, Audhild og Aud",
         (7, 31): "Elin, Eline og Elina",
+        # AUGUST
         (8, 1): "Peder og Petra", (8, 2): "Karen, Karin og Karina", (8, 3): "Oline, Oliver og Olve",
         (8, 4): "Arnhild, Arna og Arne", (8, 5): "Osvald og Oskar", (8, 6): "Loke, Lilja og Luis",
         (8, 7): "Didrik og Doris", (8, 8): "Evy, Yvonne og Yasmin", (8, 9): "Ronald og Ronny",
@@ -112,6 +120,7 @@ def hent_navnedag(måned, dag):
         (8, 25): "Ludvig, Lovise og Louise", (8, 26): "Øyvind, Eivind og Even", (8, 27): "Roald og Rolf",
         (8, 28): "Artur, August og Angela", (8, 29): "Johan, Jone og Jo", (8, 30): "Benjamin og Ben",
         (8, 31): "Aria, Ariana og Ariel",
+        # SEPTEMBER
         (9, 1): "Solveig og Solvor", (9, 2): "Lisa, Lise og Liss", (9, 3): "Alise, Alvhild og Vilde",
         (9, 4): "Ida, Idar og Iben", (9, 5): "Brede, Brian og Njål", (9, 6): "Siril og Siv", (9, 7): "Regine og Rose",
         (9, 8): "Amalie, Alma og Allan", (9, 9): "Trygve, Tyra og Trym", (9, 10): "Tord og Tor",
@@ -122,6 +131,7 @@ def hent_navnedag(måned, dag):
         (9, 23): "Snorre og Snefrid", (9, 24): "Jan og Jens", (9, 25): "Ingvar og Yngvar",
         (9, 26): "Einar, Endre og Elvira", (9, 27): "Dagmar og Dagrun", (9, 28): "Lena, Lene og Elena",
         (9, 29): "Mikael, Mikal og Mikkel", (9, 30): "Helga, Helge og Hege",
+        # OKTOBER
         (10, 1): "Rebekka og Remi", (10, 2): "Live, Liv og Linus", (10, 3): "Evald, Evelyn og Emine",
         (10, 4): "Frans, Frank og Fanny", (10, 5): "Brynjar, Boye og Bo", (10, 6): "Målfrid, Møyfrid og Mio",
         (10, 7): "Birgitte, Birgit og Berit", (10, 8): "Benedikte og Bente", (10, 9): "Leif, Liam og Dennis",
@@ -133,6 +143,7 @@ def hent_navnedag(måned, dag):
         (10, 24): "Eilif, Eivor og Emrik", (10, 25): "Margrete, Merete og Märta", (10, 26): "Amandus og Amanda",
         (10, 27): "Sturla og Sture", (10, 28): "Simon, Simen og Simone", (10, 29): "Norunn, Naomi og Nikoline",
         (10, 30): "Aksel og Ove", (10, 31): "Edit og Edna",
+        # NOVEMBER
         (11, 1): "Veslemøy og Vetle", (11, 2): "Tove og Tuva", (11, 3): "Raymond og Roy",
         (11, 4): "Otto, Ottar og Otilie", (11, 5): "Egil, Egon og Eira", (11, 6): "Leonard, Lennart og Leonora",
         (11, 7): "Ingebrigt og Ingelin", (11, 8): "Ingvild og Yngvild", (11, 9): "Tordis, Teodor og Theo",
@@ -143,6 +154,7 @@ def hent_navnedag(måned, dag):
         (11, 22): "Cecilie, Silje og Sissel", (11, 23): "Klement, Klaus og Klaudia", (11, 24): "Gudrun og Guro",
         (11, 25): "Katarina, Katrine og Kari", (11, 26): "Konrad og Kurt", (11, 27): "Torlaug, Torleif og Colin",
         (11, 28): "Ruben og Rut", (11, 29): "Sofie, Sonja og Sofia", (11, 30): "Andreas, Anders og Ana",
+        # DESEMBER
         (12, 1): "Arnold, Arnljot og Arnt", (12, 2): "Borghild, Borgny og Bård", (12, 3): "Sveinung og Svein",
         (12, 4): "Barbara og Barbro", (12, 5): "Stine og Ståle", (12, 6): "Nikolai, Nils og Niklas",
         (12, 7): "Hallfrid, Hallstein og Hallgeir", (12, 8): "Marlene, Marion og Morgan", (12, 9): "Anniken og Annette",
@@ -150,7 +162,7 @@ def hent_navnedag(måned, dag):
         (12, 13): "Lucia, Lydia og Luna", (12, 14): "Steinar og Stein", (12, 15): "Hilda og Hilde",
         (12, 16): "Oddbjørg og Oddbjørn", (12, 17): "Inga, Inge og Iman", (12, 18): "Kristoffer, Kate og Kristiane",
         (12, 19): "Iselin, Isak og Isa", (12, 20): "Abraham, Amund og Abel", (12, 21): "Tomas, Tom og Tommy",
-        (12, 22): "Ingemar og Ingar", (12, 23): "Sigurd og Sjur", (12, 24): "Adam og Eva",
+        (12, 22): "Ingemar og Ingar", (12, 23): "Sigurd og Sjur", (12, 24): "Adam og Eva", (12, 25): "Ingen navnedag",
         (12, 26): "Stefan, Steffen og Steven", (12, 27): "Narve, Natalie og Nadia", (12, 28): "Unni, Une og Unn",
         (12, 29): "Vidar, Vemund og Vårin", (12, 30): "David, Diana og Dina", (12, 31): "Sylfest, Sylvia og Sylvi"
     }
@@ -178,8 +190,8 @@ def hent_wikipedia_data(måned, dag):
     return []
 
 
-def hent_vaer_data():
-    """Henter utvidet værdata for Sarpsborg fra Met.no"""
+def hent_vaer_data(mål_dato):
+    """Henter utvidet værdata for Sarpsborg fra Met.no for en spesifikk dato"""
     url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=59.28&lon=11.11"
     headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
     try:
@@ -188,41 +200,43 @@ def hent_vaer_data():
         data = response.json()
 
         timeseries = data['properties']['timeseries']
-        # Nå-data
-        now = timeseries[0]['data']['instant']['details']
-        temp_nu = now['air_temperature']
-        forhold_nu = timeseries[0]['data']['next_1_hours']['summary']['symbol_code']
+        dato_str = mål_dato.strftime('%Y-%m-%d')
+        dagens_data = [t for t in timeseries if t['time'].startswith(dato_str)]
 
-        # Finn max/min for de neste 12 timene
-        temp_liste = [t['data']['instant']['details']['air_temperature'] for t in timeseries[:12]]
+        if not dagens_data:
+            dagens_data = timeseries[:24]
+
+        temp_liste = [t['data']['instant']['details']['air_temperature'] for t in dagens_data]
         max_temp = max(temp_liste)
         min_temp = min(temp_liste)
 
-        # Oversikt for neste 6 timer
-        neste_6h = timeseries[0]['data']['next_6_hours']['summary']['symbol_code']
+        temp_nu = dagens_data[0]['data']['instant']['details']['air_temperature']
+        forhold_nu = dagens_data[0].get('data', {}).get('next_1_hours', {}).get('summary', {}).get('symbol_code',
+                                                                                                   'varierende')
+
+        midt_pa_dagen = dagens_data[len(dagens_data) // 2]
+        utsikt = midt_pa_dagen.get('data', {}).get('next_6_hours', {}).get('summary', {}).get('symbol_code', forhold_nu)
 
         return {
             "temp": temp_nu,
             "max": max_temp,
             "min": min_temp,
             "forhold": forhold_nu.replace('_', ' '),
-            "neste_6h": neste_6h.replace('_', ' ')
+            "neste_6h": utsikt.replace('_', ' ')
         }
-    except:
+    except Exception as e:
+        print(f"Vær-feil: {e}")
         return {"temp": "ukjent", "max": "ukjent", "min": "ukjent", "forhold": "varierende", "neste_6h": "varierende"}
 
 
 def beregn_dagslys_endring(dato):
-    """Beregner endring i dagslys siden siste solverv (omtrentlig)"""
-    # Vintersolverv er ca 21. des, Sommersolverv ca 21. juni
+    """Beregner endring i dagslys siden siste solverv"""
     solverv = datetime.datetime(dato.year if dato.month > 6 else dato.year - 1, 12, 21)
     if dato.month > 6 and dato.day > 21:
         solverv = datetime.datetime(dato.year, 6, 21)
 
     dager_siden = abs((dato - solverv).days)
-    # Enkel sinusmodell for dagslysendring i minutter (Veldig forenklet for Sarpsborg-breddegrad)
-    # Dette gir KI-en et tall å forholde seg til.
-    minutter = round(dager_siden * 4)  # Gjennomsnittlig 4 min endring per dag rundt jevndøgn
+    minutter = round(dager_siden * 4)
     status = "lengre" if solverv.month == 12 else "kortere"
     return f"Dagen er nå ca. {minutter} minutter {status} enn ved solverv."
 
@@ -259,36 +273,31 @@ def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
     prompt = f"""
     Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
 
-    DATA DU SKAL BRUKE (VÆR STRENGT NØYAKTIG):
+    DATA DU SKAL BRUKE:
     - Dato: {dato_full} (Dag {dag_nr}/{dager_i_år}, {dager_igjen} igjen)
     - Navnedag: {navnedag}
-    - VÆRDATA NÅ: {vaer['temp']} grader, {vaer['forhold']}.
-    - VÆRDATA RESTEN AV DAGEN: Max {vaer['max']}°C, Min {vaer['min']}°C. Utsiktene de neste timene er {vaer['neste_6h']}.
+    - TEMPERATUR HELE DAGEN: Laveste {vaer['min']}°C, høyeste {vaer['max']}°C.
+    - FORHOLD NÅ: {vaer['temp']} grader, {vaer['forhold']}.
+    - UTSIKT RESTEN AV DAGEN: {vaer['neste_6h']}.
     - SOL: {sol_info}. {lys_endring}
     - HISTORIE: {chr(10).join(wiki_hendelser)}
 
-    STRUKTUR (KUN REN TEKST, INGEN MARKDOWN):
+    STRUKTUR:
     1. Tittel: God morgen, Sarpsborg!
-    2. Intro: Hyggelig hilsen med dato og dager igjen av året.
+    2. Intro: Hyggelig hilsen med dato og dager igjen.
     3. Navnedag: Nevn {navnedag}.
     4. Mellomtittel: Dagen i dag
-    5. Historie: Gjenfortell 3 korte hendelser fra listen. Prioriter Norge.
+    5. Historie: Gjenfortell 3 korte hendelser fra listen. Prioriter Norge. Vær kortfattet!
     6. Mellomtittel: Været
-    7. Vær-tekst: Beskriv været nøyaktig basert på tallene over. Bruk {vaer['temp']} grader som utgangspunkt. Nevn max-temp på {vaer['max']} grader og utsiktene ({vaer['neste_6h']}). Få med soltider og dagslys-endring. Nevn gjerne en lokal referanse.
-    8. Plassholder: [Plass for værembed her]
+    7. Vær-tekst: Beskriv været basert på tallene. Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Ta med soltider og dagslys-endring.
+    8. [Plass for værembed her]
     9. Mellomtittel: Trafikk
-    10. Trafikk-tekst: Skal du ut i trafikken? Se her hvordan trafikken er nå og hvor lang reisetid du bør beregne:
-    11. Plassholder: [Plass for reisetid-embed her]
-    12. Trafikk-tekst: Her kan du se trafikken over Sarpsbrua direkte:
-    13. Plassholder: [Plass for Sarpsbrua-embed her]
-    14. Trafikk-tekst: På disse kameraene fra Statens vegvesen kan du følge trafikken på E6 direkte:
-    15. Plassholder: [Plass for E6-embed her]
-    16. Mellomtittel: Strømprisen
-    17. Strøm-tekst: Her er dagens strømpriser time for time:
-    18. Plassholder: [Plass for strøm-embed her]
-    19. Avslutning: "Vi ønsker alle våre lesere en strålende dag!"
+    10. Trafikk-tekst og embeds for reisetid, Sarpsbrua og E6.
+    11. Mellomtittel: Strømprisen
+    12. Strøm-tekst og embed.
+    13. Avslutning: "Vi ønsker alle våre lesere en strålende dag!"
 
-    VIKTIG: Hold værmeldingen faktuelt korrekt etter dataene. Ikke finn på vær som ikke står i tallene. Ingen # eller *.
+    VIKTIG: Sørg for at makstemperaturen på {vaer['max']} grader nevnes. Ingen # eller *.
     """
     for i in range(5):
         try:
@@ -298,8 +307,10 @@ def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
                 config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=3000)
             )
             if res.text: return res.text
-        except:
+        except errors.ServerError:
             time.sleep((2 ** i) + 1)
+        except Exception:
+            time.sleep(1)
     return "Feil ved generering av tekst."
 
 
@@ -349,7 +360,7 @@ def hovedprosess():
     morgen = datetime.datetime.now() + datetime.timedelta(days=1)
     print(f"Starter generering for {morgen.strftime('%d.%m.%Y')}...")
     wiki = hent_wikipedia_data(morgen.month, morgen.day)
-    vaer = hent_vaer_data()
+    vaer = hent_vaer_data(morgen)
     sol = hent_sol_data(morgen)
     artikkel = generer_artikkeltekst(morgen, wiki, vaer, sol)
     html = bygg_ferdig_html(artikkel)
