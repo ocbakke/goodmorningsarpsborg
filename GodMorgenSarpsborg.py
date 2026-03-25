@@ -11,14 +11,15 @@ from google.genai import types
 # KONFIGURASJON (Bruk miljøvariabler for sikkerhet)
 # ==========================================
 # I GitHub Actions setter du disse under Settings -> Secrets and variables -> Actions
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "DIN_API_NØKKEL_HER")
-GEMINI_MODELL = "gemini-2.5-flash"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+# Oppdatert til nyeste modellversjon
+GEMINI_MODELL = "gemini-3-flash"
 
-# E-post konfigurasjon
-EMAIL_SENDER = os.environ.get("EMAIL_SENDER")  # f.eks. en Gmail-adresse
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD") # App-passord for e-posten
+# E-post konfigurasjon (Google Workspace / Gmail)
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")  
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD") 
 EMAIL_RECEIVER = "redaksjonen@sa.no"
-SMTP_SERVER = "smtp.gmail.com" # Endre hvis dere bruker Outlook/annet
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 # Initialiser den nye genai-klienten
@@ -68,13 +69,14 @@ def generer_artikkeltekst(dato_tekst, wiki_data):
     
     OPPGAVE:
     1. Start med en hyggelig hilsen ("Det er [ukedag] [dato]...").
-    2. Lag en seksjon med en <ul> (HTML-liste) som trekker frem de 3 mest interessante historiske hendelsene omskrevet til norsk.
-    3. Lag en kort setning om hvem som har navnedag.
-    4. Legg til et kort, vennlig avsnitt om været med lokal tilknytning til Sarpsborg/Østfold.
+    2. Lag en seksjon med en <h3> med tittelen "Dagen i dag".
+    3. Lag en <ul> (HTML-liste) som trekker frem de 3 mest interessante historiske hendelsene omskrevet til norsk.
+    4. Lag en kort setning om hvem som har navnedag.
+    5. Legg til en seksjon med en <h3> med tittelen "Vær", og skriv et kort, vennlig avsnitt om været med lokal tilknytning til Sarpsborg.
     
     KRAV:
-    - Formater svaret KUN i ren HTML uten ```html tags.
-    - Bruk <h3> for mellomtitler.
+    - Formater svaret KUN i ren HTML uten ```html tags rundt.
+    - Bruk kun <h3> og <ul>/<li> for strukturering.
     - Tone: Morgenfrisk, lokal og hyggelig.
     """
     
@@ -87,45 +89,41 @@ def generer_artikkeltekst(dato_tekst, wiki_data):
 
 def bygg_ferdig_html(artikkel_tekst):
     """Setter sammen KI-teksten med de faktiske smartembedsene fra Cue"""
+    # Vi rydder URL-ene slik at de er 100% rene for Cue-innliming
     html_mal = f"""
     <html>
-    <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
-        <div style="max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
-            <h1 style="color: #d32f2f;">Forslag: God morgen, Sarpsborg</h1>
-            <p style="background: #fff3e0; padding: 10px; border-left: 5px solid #ff9800;">
-                <strong>Instruks:</strong> Dette er morgendagens brief. Kopier HTML-koden nedenfor og lim den inn i en HTML-blokk i Cue.
-            </p>
-            <hr>
-            {artikkel_tekst}
+    <body style="font-family: sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
+        <div style="max-width: 650px; margin: auto; background: white; border: 1px solid #ddd; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h1 style="color: #d32f2f; margin-top: 0;">Forslag: God morgen, Sarpsborg</h1>
             
-            <div class="cue-embeds" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                <p><strong>Følgende embeds er lagt inn i den skjulte koden:</strong></p>
-                <ul style="font-size: 0.9em;">
-                    <li>Værvarsel (id=363100)</li>
-                    <li>Trafikktabell (Sarpsborg)</li>
-                    <li>Trafikkameraer</li>
-                    <li>Strømpriser</li>
-                    <li>SA.tv Video-plugg</li>
-                </ul>
+            <div style="background: #fff3e0; padding: 15px; border-left: 5px solid #ff9800; margin-bottom: 25px;">
+                <strong>Instruks for redaksjonen:</strong><br>
+                Dette er et KI-generert forslag for i morgen. Kopier HTML-koden nedenfor og lim den inn i en HTML-blokk i Cue.
             </div>
             
-            <!-- Her er HTML-koden som faktisk skal brukes i Cue -->
-            <div style="margin-top: 30px; border: 2px dashed #ccc; padding: 10px;">
-                <p style="text-align: center; color: #999;">--- START CUE HTML ---</p>
-                <div class="sa-god-morgen-article">
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+            
+            <div style="padding: 15px; border: 2px dashed #d32f2f; background: #fafafa; font-family: monospace; font-size: 13px; color: #444; overflow-x: auto;">
+                &lt;div class="sa-god-morgen-article"&gt;<br>
+                {artikkel_tekst}<br>
+                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100](https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100)"&gt;Vær&lt;/a&gt;&lt;/div&gt;<br>
+                &lt;hr&gt;<br>
+                &lt;h3&gt;Trafikk&lt;/h3&gt;<br>
+                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg](https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg)"&gt;Trafikk&lt;/a&gt;&lt;/div&gt;<br>
+                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/trafikk-webkamera](https://www.sa.no/api/graff/v1/component/trafikk-webkamera)"&gt;Kamera&lt;/a&gt;&lt;/div&gt;<br>
+                &lt;hr&gt;<br>
+                &lt;h3&gt;Strømprisen&lt;/h3&gt;<br>
+                &lt;div class="cue-embed"&gt;&lt;a href="[https://www.sa.no/api/graff/v1/component/strom-timepris](https://www.sa.no/api/graff/v1/component/strom-timepris)"&gt;Strøm&lt;/a&gt;&lt;/div&gt;<br>
+                &lt;hr&gt;<br>
+                &lt;div class="cue-embed"&gt;&lt;a href="[https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&amp;publication=www.sa.no&amp;tag=Sa.tv&amp;title=Siste+videoer+fra+sa.no&amp;limit=20](https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&amp;publication=www.sa.no&amp;tag=Sa.tv&amp;title=Siste+videoer+fra+sa.no&amp;limit=20)"&gt;Video&lt;/a&gt;&lt;/div&gt;<br>
+                &lt;/div&gt;
+            </div>
+            
+            <div style="margin-top: 25px; font-size: 14px; color: #666;">
+                <h3>Forhåndsvisning:</h3>
+                <div style="border: 1px solid #eee; padding: 15px; background: #fff;">
                     {artikkel_tekst}
-                    <div class="cue-embed"><a href="[https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100](https://www.sa.no/api/graff/v1/component/vaer-melding?id=363100)">Vær</a></div>
-                    <hr>
-                    <h3>Trafikk</h3>
-                    <div class="cue-embed"><a href="[https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg](https://www.sa.no/api/graff/v1/component/trafikk-tabell?key=sarpsborg)">Trafikk</a></div>
-                    <div class="cue-embed"><a href="[https://www.sa.no/api/graff/v1/component/trafikk-webkamera](https://www.sa.no/api/graff/v1/component/trafikk-webkamera)">Kamera</a></div>
-                    <hr>
-                    <h3>Strømprisen</h3>
-                    <div class="cue-embed"><a href="[https://www.sa.no/api/graff/v1/component/strom-timepris](https://www.sa.no/api/graff/v1/component/strom-timepris)">Strøm</a></div>
-                    <hr>
-                    <div class="cue-embed"><a href="[https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&publication=www.sa.no&tag=Sa.tv&title=Siste+videoer+fra+sa.no&limit=20](https://services.api.no/api/componenthub/v1/dashboard?component=reels-carousel_reelsCarousel&publication=www.sa.no&tag=Sa.tv&title=Siste+videoer+fra+sa.no&limit=20)">Video</a></div>
                 </div>
-                <p style="text-align: center; color: #999;">--- SLUTT CUE HTML ---</p>
             </div>
         </div>
     </body>
@@ -134,9 +132,9 @@ def bygg_ferdig_html(artikkel_tekst):
     return html_mal
 
 def send_epost(html_innhold, dato_str):
-    """Sender det ferdige resultatet på e-post"""
+    """Sender det ferdige resultatet på e-post via SMTP"""
     if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        print("E-post-legitimasjon mangler. Hopper over sending.")
+        print("E-post-legitimasjon mangler i miljøvariabler.")
         return
 
     msg = MIMEMultipart()
@@ -152,7 +150,7 @@ def send_epost(html_innhold, dato_str):
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
-        print("E-post sendt til redaksjonen!")
+        print(f"E-post sendt til {EMAIL_RECEIVER}!")
     except Exception as e:
         print(f"Feil ved sending av e-post: {e}")
 
@@ -165,7 +163,7 @@ def hovedprosess():
     måneder = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
     
     dato_tekst = f"{ukedager[morgen.weekday()]} {morgen.day}. {måneder[morgen.month - 1]}"
-    print(f"Genererer innhold for i morgen: {dato_tekst}")
+    print(f"Starter generering for: {dato_tekst}")
     
     wiki_data = hent_wikipedia_data(morgen.month, morgen.day)
     
@@ -173,15 +171,11 @@ def hovedprosess():
         artikkel_tekst = generer_artikkeltekst(dato_tekst, wiki_data)
         ferdig_html = bygg_ferdig_html(artikkel_tekst)
         
-        # Lagre fil lokalt
-        with open("forslag_morgenbrief.html", "w", encoding="utf-8") as f:
-            f.write(ferdig_html)
-            
         # Send til redaksjonen
         send_epost(ferdig_html, dato_tekst)
-        print("Prosess fullført.")
+        print("Prosess fullført uten feil.")
     else:
-        print("Feil: Ingen data hentet.")
+        print("Feil: Kunne ikke hente Wikipedia-data.")
 
 if __name__ == "__main__":
     hovedprosess()
