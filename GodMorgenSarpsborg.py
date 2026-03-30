@@ -5,6 +5,7 @@ import smtplib
 import time
 import json
 import urllib.parse
+import html
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google import genai
