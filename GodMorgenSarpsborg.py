@@ -219,7 +219,7 @@ def lag_cue_lenke(tittel, brødtekst_ren):
     modeluri = f"{webservice}/escenic/publication/{PUB_NAME}/model/content-type/{model}"
     publication_uri = f"{webservice}/escenic/publication/{PUB_NAME}/"
 
-    sourceid = f"sa-bot-{datetime.datetime.now().strftime('%y%m%d-%H%M%S')}"
+    sourceid = f"Redaksjonen-{datetime.datetime.now().strftime('%y%m%d-%H%M%S')}"
     mimetype = f"x-ece/new-content; type={model}"
 
     # Bruker homePublication i stedet for homeSectionUri for å unngå 404 på seksjons-ID
@@ -236,7 +236,7 @@ def lag_cue_lenke(tittel, brødtekst_ren):
         "values": {
             "title": tittel,
             "body": body_html,
-            "byline": "SA-bot"
+            "byline": "Redaksjonen"
         }
     }
 
