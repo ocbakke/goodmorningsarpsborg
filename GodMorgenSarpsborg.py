@@ -188,6 +188,31 @@ def hent_vaer_data(mål_dato):
         return {"temp": "ukjent", "max": "ukjent", "min": "ukjent", "forhold": "varierende", "neste_6h": "varierende"}
 
 
+def beregn_dagslys_endring(dato):
+    """Beregner endring i dagslys siden siste solverv"""
+    solverv = datetime.datetime(dato.year if dato.month > 6 else dato.year - 1, 12, 21)
+    if dato.month > 6 and dato.day > 21:
+        solverv = datetime.datetime(dato.year, 6, 21)
+
+    dager_siden = abs((dato - solverv).days)
+    minutter = round(dager_siden * 4)
+    status = "lengre" if solverv.month == 12 else "kortere"
+    return f"Dagen er nå ca. {minutter} minutter {status} enn ved solverv."
+
+
+def hent_sol_data(dato):
+    """Henter soltider"""
+    url = f"https://api.met.no/weatherapi/sunrise/3.0/sun?lat=59.28&lon=11.11&date={dato.strftime('%Y-%m-%d')}&offset=+01:00"
+    headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
+    try:
+        res = requests.get(url, headers=headers).json()
+        opp = res['properties']['sunrise']['time'][11:16]
+        ned = res['properties']['sunset']['time'][11:16]
+        return {"opp": opp, "ned": ned}
+    except:
+        return None
+
+
 def tekst_til_cue_html(tekst):
     """Konverterer ren tekst fra Gemini til Cue-kompatibel HTML"""
     sikker_tekst = html.escape(tekst)
@@ -278,12 +303,16 @@ def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
      "desember"][morgen.month - 1]
     dato_full = f"{ukedag} {morgen.day}. {måned_navn} {morgen.year}"
 
+    sol_info = f"Sola står opp kl. {sol['opp']} og går ned kl. {sol['ned']}." if sol else ""
+    lys_endring = beregn_dagslys_endring(morgen)
+
     prompt = f"""
     Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
     DATA: 
     Navnedag: {navnedag}. 
     Vær nå: {vaer['temp']} grader, {vaer['forhold']}. 
     Max i dag: {vaer['max']} grader. 
+    Sol: {sol_info} {lys_endring}
     Historiske hendelser: {chr(10).join(wiki_hendelser)}.
 
     STRUKTUR: 
@@ -291,7 +320,7 @@ def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
     2. Intro med dato og hyggelig hilsen. 
     3. Navnedag: Nevn at {navnedag} har navnedag. 
     4. Mellomtittel: Dagen i dag. (Gjenfortell 3 korte hendelser fra listen over på en engasjerende måte. Prioriter norske forhold). 
-    5. Mellomtittel: Været. (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}). 
+    5. Mellomtittel: Været. (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}. Inkluder soltider og at {lys_endring}). 
     6. [Plass for værembed her]. 
     7. Mellomtittel: Trafikk. 
     8. Skriv: "Skal du ut i trafikken? Se her hvordan trafikken er nå og hvor lang reisetid du bør beregne:"
@@ -341,11 +370,12 @@ def hovedprosess():
     morgen = datetime.datetime.now() + datetime.timedelta(days=1)
     print(f"Starter generering for {morgen.strftime('%d.%m.%Y')}...")
 
-    # Henter ekte data fra Wikipedia og Met.no
+    # Henter ekte data fra Wikipedia, Met.no og Soloppgang
     wiki = hent_wikipedia_data(morgen.month, morgen.day)
     vaer = hent_vaer_data(morgen)
+    sol = hent_sol_data(morgen)
 
-    artikkel = generer_artikkeltekst(morgen, wiki, vaer, None)
+    artikkel = generer_artikkeltekst(morgen, wiki, vaer, sol)
     cue_url = lag_cue_lenke("God morgen, Sarpsborg!", artikkel)
 
     html_epost = bygg_ferdig_epost_html(artikkel, cue_url)
