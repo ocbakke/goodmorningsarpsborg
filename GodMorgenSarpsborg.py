@@ -15,7 +15,7 @@ from google.genai import types, errors
 # KONFIGURASJON
 # ==========================================
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or "DIN_GEMINI_API_NØKKEL_HER"
-GEMINI_MODELL = "gemini-2.5-flash" 
+GEMINI_MODELL = "gemini-3-flash-preview" 
 
 # E-post konfigurasjon
 EMAIL_SENDER = os.environ.get("EMAIL_SENDER") or "navn@sa.no" 
