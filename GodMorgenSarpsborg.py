@@ -6,6 +6,7 @@ import time
 import json
 import urllib.parse
 import html
+import zoneinfo # NY: For å håndtere norsk sommer-/vintertid riktig
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google import genai
@@ -26,8 +27,8 @@ SMTP_PORT = 587
 
 # CUE INTEGRASJON
 CUE_HOST = "https://ece5.api.no"
-PUB_CODE = "sarp"  # Brukes for nettadressen (/sarp/cue/)
-PUB_NAME = "sarpsborgsarbeiderblad"  # Måten Escenic kjenner publikasjonen på internt
+PUB_CODE = "sarp"  
+PUB_NAME = "sarpsborgsarbeiderblad"  
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
@@ -201,202 +202,19 @@ def beregn_dagslys_endring(dato):
 
 
 def hent_sol_data(dato):
-    """Henter soltider"""
-    url = f"https://api.met.no/weatherapi/sunrise/3.0/sun?lat=59.28&lon=11.11&date={dato.strftime('%Y-%m-%d')}&offset=+01:00"
+    """Henter soltider og konverterer til riktig norsk tid"""
+    # Fjerner hardkodet offset og ber APIet om standard tid (UTC)
+    url = f"https://api.met.no/weatherapi/sunrise/3.0/sun?lat=59.28&lon=11.11&date={dato.strftime('%Y-%m-%d')}"
     headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
     try:
         res = requests.get(url, headers=headers).json()
-        opp = res['properties']['sunrise']['time'][11:16]
-        ned = res['properties']['sunset']['time'][11:16]
-        return {"opp": opp, "ned": ned}
-    except:
-        return None
-
-
-def tekst_til_cue_html(tekst):
-    """Konverterer ren tekst fra Gemini til Cue-kompatibel HTML"""
-    sikker_tekst = html.escape(tekst)
-    linjer = sikker_tekst.split('\n')
-    html_deler = []
-    for linje in linjer:
-        linje = linje.strip()
-        if not linje: continue
-        if "Dagen i dag" in linje or "Været" in linje or "Trafikk" in linje or "Strømprisen" in linje:
-            html_deler.append(f"<h2>{linje}</h2>")
-        elif not linje.startswith("God morgen"):
-            html_deler.append(f"<p>{linje}</p>")
-    return "".join(html_deler)
-
-
-def lag_cue_lenke(tittel, brødtekst_ren):
-    """Genererer URI-en for å opprette artikkel i Cue"""
-    body_html = tekst_til_cue_html(brødtekst_ren)
-
-    if len(body_html) > 5000:
-        body_html = body_html[:5000] + "<p>... (tekst kuttet pga lengde)</p>"
-
-    model = "story"
-    server = f"{CUE_HOST}/{PUB_CODE}"
-    cue = f"{server}/cue"
-    webservice = f"{server}/webservice"
-
-    # Bygger adresser for publikasjon
-    modeluri = f"{webservice}/escenic/publication/{PUB_NAME}/model/content-type/{model}"
-    publication_uri = f"{webservice}/escenic/publication/{PUB_NAME}/"
-
-    sourceid = f"Redaksjonen-{datetime.datetime.now().strftime('%y%m%d-%H%M%S')}"
-    mimetype = f"x-ece/new-content; type={model}"
-
-    # Bruker homePublication i stedet for homeSectionUri for å unngå 404 på seksjons-ID
-    extra_data = {
-        "modelURI": {
-            "string": modeluri,
-            "$class": "URI"
-        },
-        "homePublication": {
-            "string": publication_uri,
-            "$class": "URI"
-        },
-        "container": False,
-        "values": {
-            "title": tittel,
-            "body": body_html,
-            "byline": "Redaksjonen"
-        }
-    }
-
-    # Koding slik at Cue klarer å lese JSON-formatet riktig
-    mimetype_encoded = urllib.parse.quote(mimetype)
-    extra_encoded = urllib.parse.quote(json.dumps(extra_data, separators=(',', ':')))
-
-    params = f"uri={sourceid}&mimetype={mimetype_encoded}&extra={extra_encoded}"
-    cue_url = f"{cue}/#/main?{params}"
-
-    return cue_url
-
-
-def hent_wikipedia_data(måned, dag):
-    """Henter historiske hendelser fra norsk Wikipedia"""
-    url = f"https://no.wikipedia.org/api/rest_v1/feed/onthisday/all/{måned:02d}/{dag:02d}"
-    headers = {'User-Agent': 'SarpsborgArbeiderbladBot/1.0 (ocb@sa.no)'}
-    try:
-        res = requests.get(url, headers=headers, timeout=10).json()
-        events = res.get('events') or res.get('selected') or []
-        resultater = [e['text'] for e in events if isinstance(e, dict) and 'text' in e]
-        if resultater:
-            return resultater[:10]
-        # Fallback til engelsk hvis norsk er tom
-        url_en = f"https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{måned:02d}/{dag:02d}"
-        res_en = requests.get(url_en, headers=headers, timeout=10).json()
-        events_en = res_en.get('events') or res_en.get('selected') or []
-        return [e['text'] for e in events_en if isinstance(e, dict) and 'text' in e][:10]
-    except:
-        return []
-
-
-def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
-    """Bruker Gemini for å skrive selve teksten"""
-    navnedag = hent_navnedag(morgen.month, morgen.day)
-    ukedag = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"][morgen.weekday()]
-    måned_navn = \
-    ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november",
-     "desember"][morgen.month - 1]
-    dato_full = f"{ukedag} {morgen.day}. {måned_navn} {morgen.year}"
-
-    sol_info = f"Sola står opp kl. {sol['opp']} og går ned kl. {sol['ned']}." if sol else ""
-    lys_endring = beregn_dagslys_endring(morgen)
-
-    prompt = f"""
-    Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
-    DATA: 
-    Navnedag: {navnedag}. 
-    Vær nå: {vaer['temp']} grader, {vaer['forhold']}. 
-    Max i dag: {vaer['max']} grader. 
-    Sol: {sol_info} {lys_endring}
-    Historiske hendelser: {chr(10).join(wiki_hendelser)}.
-
-    STRUKTUR: 
-    1. Tittel: God morgen, Sarpsborg! 
-    2. Intro med dato og hyggelig hilsen. 
-    3. Navnedag: Nevn at {navnedag} har navnedag. 
-    4. Mellomtittel: Dagen i dag. (Gjenfortell 3 korte hendelser fra listen over på en engasjerende måte. Prioriter norske forhold). 
-    5. Mellomtittel: Været. (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}. Inkluder soltider og at {lys_endring}). 
-    6. [Plass for værembed her]. 
-    7. Mellomtittel: Trafikk. 
-    8. Skriv: "Skal du ut i trafikken? Se her hvordan trafikken er nå og hvor lang reisetid du bør beregne:"
-    9. [Plass for reisetid-embed her]
-    10. Skriv: "Her kan du se trafikken over Sarpsbrua direkte:"
-    11. [Plass for Sarpsbrua-embed her]
-    12. Mellomtittel: Strømprisen. 
-    13. Avslutning: "Vi ønsker alle våre lesere en strålende dag!"
-
-    KRAV: KUN REN TEKST. Ingen Markdown-formatering som # eller *.
-    """
-    try:
-        res = client.models.generate_content(model=GEMINI_MODELL, contents=prompt)
-        return res.text
-    except:
-        return "Kunne ikke generere tekst pga teknisk feil."
-
-
-def bygg_ferdig_epost_html(artikkel_tekst, cue_url):
-    """Lager e-posten med Cue-knapp"""
-    return f"""
-    <html>
-    <body style="font-family: sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f4f4;">
-        <div style="max-width: 650px; margin: auto; border: 1px solid #ddd; padding: 30px; border-radius: 8px; background: white;">
-            <h2 style="color: #d32f2f; margin-top: 0;">God morgen, Sarpsborg er klar!</h2>
-
-            <a href="{cue_url}" style="display: inline-block; padding: 18px 30px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 25px;">
-                🚀 OPPRETT KLADD I CUE
-            </a>
-
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 25px;">
-                <strong>💡 Sjekkliste for journalist:</strong><br>
-                Husk å se om det skjer noe spesielt i dag på <a href="https://www.sa.no/vis/hvaskjer/">Hva skjer i Sarpsborg</a> før du publiserer.
-            </div>
-
-            <div style="white-space: pre-wrap; background: #fafafa; padding: 20px; border: 1px solid #eee; font-size: 15px;">
-{artikkel_tekst}
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
-
-def hovedprosess():
-    # Vi genererer for morgendagen
-    morgen = datetime.datetime.now() + datetime.timedelta(days=1)
-    print(f"Starter generering for {morgen.strftime('%d.%m.%Y')}...")
-
-    # Henter ekte data fra Wikipedia, Met.no og Soloppgang
-    wiki = hent_wikipedia_data(morgen.month, morgen.day)
-    vaer = hent_vaer_data(morgen)
-    sol = hent_sol_data(morgen)
-
-    artikkel = generer_artikkeltekst(morgen, wiki, vaer, sol)
-    cue_url = lag_cue_lenke("God morgen, Sarpsborg!", artikkel)
-
-    html_epost = bygg_ferdig_epost_html(artikkel, cue_url)
-
-    # SMTP-sending
-    if EMAIL_SENDER and EMAIL_PASSWORD:
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_SENDER
-        msg['To'] = EMAIL_RECEIVER
-        msg['Subject'] = f"God morgen, Sarpsborg ({morgen.strftime('%d.%m')})"
-        msg.attach(MIMEText(html_epost, 'html'))
-        try:
-            s = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-            s.starttls()
-            s.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            s.send_message(msg)
-            s.quit()
-            print("E-post sendt!")
-        except Exception as e:
-            print(f"E-post-feil: {e}")
-
-
-if __name__ == "__main__":
-    hovedprosess()
+        
+        opp_iso = res['properties']['sunrise']['time']
+        ned_iso = res['properties']['sunset']['time']
+        
+        # Sørger for at formatet kan leses av alle Python-versjoner (bytter ut Z med +00:00)
+        opp_iso = opp_iso.replace('Z', '+00:00')
+        ned_iso = ned_iso.replace('Z', '+00:00')
+        
+        # Setter opp tidssonen for Norge
+        oslo_tz = zone
