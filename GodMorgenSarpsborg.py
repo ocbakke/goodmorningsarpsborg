@@ -369,7 +369,7 @@ def bygg_ferdig_epost_html(artikkel_tekst, cue_url):
 
             <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 25px;">
                 <strong>💡 Sjekkliste for journalist:</strong><br>
-                Husk å se om det skjer noe spesielt i dag på <a href="https://www.sa.no/vis/hvaskjer/">Hva skjer i Sarpsborg</a> før du publiserer.
+                Husk å se om det skjer noe spesielt i dag på <a href="https://www.sa.no/vis/hvaskjer/">Hva skjer i Sarpsborg</a> før du publiserer. Husk også å dobbeltsjekke at faktaene i saken stemmer 📖.
             </div>
 
             <div style="white-space: pre-wrap; background: #fafafa; padding: 20px; border: 1px solid #eee; font-size: 15px;">
