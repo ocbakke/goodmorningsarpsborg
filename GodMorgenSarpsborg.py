@@ -335,15 +335,15 @@ def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol):
     1. Tittel: God morgen, Sarpsborg! 
     2. Intro med dato og hyggelig hilsen. 
     3. Navnedag: Nevn at {navnedag} har navnedag. 
-    4. Mellomtittel: Dagen i dag. (Gjenfortell 3 korte hendelser fra listen over på en engasjerende måte. Prioriter norske forhold). 
-    5. Mellomtittel: Været. (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}. Inkluder soltider og at {lys_endring}). 
+    4. Mellomtittel: Dagen i dag (Gjenfortell 3 korte hendelser fra listen over på en engasjerende måte. Prioriter norske forhold). 
+    5. Mellomtittel: Været (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}. Inkluder soltider og at {lys_endring}). 
     6. [Plass for værembed her]. 
-    7. Mellomtittel: Trafikk. 
+    7. Mellomtittel: Trafikk 
     8. Skriv: "Skal du ut i trafikken? Se her hvordan trafikken er nå og hvor lang reisetid du bør beregne:"
     9. [Plass for reisetid-embed her]
     10. Skriv: "Her kan du se trafikken over Sarpsbrua direkte:"
     11. [Plass for Sarpsbrua-embed her]
-    12. Mellomtittel: Strømprisen. 
+    12. Mellomtittel: Strømprisen 
     13. Avslutning: "Vi ønsker alle våre lesere en strålende dag!"
 
     KRAV: KUN REN TEKST. Ingen Markdown-formatering som # eller *.
