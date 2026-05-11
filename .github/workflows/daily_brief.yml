@@ -2,29 +2,57 @@ name: Send GodMorgenSarpsborg-daglig
 
 on:
   schedule:
-    # Kjører kl 08:00 UTC, som er kl 09:00 i Norge (CET)
+    # 07:00 UTC = 09:00 norsk sommertid
+    - cron: '0 7 * * *'
+    # 08:00 UTC = 09:00 norsk vintertid
     - cron: '0 8 * * *'
-  workflow_dispatch: # Gjør det mulig å starte den manuelt fra GitHub Actions-fanen
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Sjekk om klokka er 09 i Norge
+        id: norsk_tid
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "skal_kjore=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          norsk_time="$(TZ=Europe/Oslo date +%H)"
+          echo "Norsk time nå: $norsk_time"
+
+          if [ "$norsk_time" = "09" ]; then
+            echo "skal_kjore=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skal_kjore=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Sjekk ut kode
-        uses: actions/checkout@v3
+        if: steps.norsk_tid.outputs.skal_kjore == 'true'
+        uses: actions/checkout@v4
 
       - name: Sett opp Python
-        uses: actions/setup-python@v4
+        if: steps.norsk_tid.outputs.skal_kjore == 'true'
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Installer avhengigheter
-        run: |
-          pip install google-genai requests
+        if: steps.norsk_tid.outputs.skal_kjore == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Kjør tester
+        if: steps.norsk_tid.outputs.skal_kjore == 'true'
+        run: python -m unittest discover -s tests
 
       - name: Kjør script
+        if: steps.norsk_tid.outputs.skal_kjore == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER || 'redaksjonen@sa.no' }}
         run: python GodMorgenSarpsborg.py
