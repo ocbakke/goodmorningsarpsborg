@@ -1,0 +1,106 @@
+{
+  "source": {
+    "title": "Forskrift angående bruk av statsflagget og handelsflagget § 4",
+    "url": "https://lovdata.no/dokument/SF/forskrift/1927-10-21-9733",
+    "accessed": "2026-05-11"
+  },
+  "fixed": [
+    {
+      "month": 1,
+      "day": 1,
+      "name": "1. nyttårsdag",
+      "prompt_note": "Nevn at året starter med offisiell flaggdag."
+    },
+    {
+      "month": 1,
+      "day": 21,
+      "name": "H.K.H. Prinsesse Ingrid Alexandras fødselsdag",
+      "prompt_note": "Nevn at dagen er offisiell flaggdag for prinsesse Ingrid Alexandras fødselsdag."
+    },
+    {
+      "month": 2,
+      "day": 6,
+      "name": "Samefolkets dag",
+      "prompt_note": "Fremhev Samefolkets dag som offisiell flaggdag."
+    },
+    {
+      "month": 2,
+      "day": 21,
+      "name": "H.M. Kong Harald Vs fødselsdag",
+      "prompt_note": "Nevn at dagen er offisiell flaggdag for Kong Harald Vs fødselsdag."
+    },
+    {
+      "month": 5,
+      "day": 1,
+      "name": "Offentlig høytidsdag",
+      "prompt_note": "Fremhev 1. mai som offentlig høytidsdag og offisiell flaggdag."
+    },
+    {
+      "month": 5,
+      "day": 8,
+      "name": "Frigjøringsdagen 1945",
+      "prompt_note": "Fremhev frigjøringsdagen 1945 som offisiell flaggdag."
+    },
+    {
+      "month": 5,
+      "day": 17,
+      "name": "Grunnlovsdagen",
+      "prompt_note": "Fremhev 17. mai og Grunnlovsdagen tydelig som offisiell flaggdag."
+    },
+    {
+      "month": 6,
+      "day": 7,
+      "name": "Unionsoppløsningen 1905",
+      "prompt_note": "Fremhev unionsoppløsningen i 1905 som offisiell flaggdag."
+    },
+    {
+      "month": 7,
+      "day": 4,
+      "name": "H.M. Dronning Sonjas fødselsdag",
+      "prompt_note": "Nevn at dagen er offisiell flaggdag for Dronning Sonjas fødselsdag."
+    },
+    {
+      "month": 7,
+      "day": 20,
+      "name": "H.K.H. Kronprins Haakon Magnus' fødselsdag",
+      "prompt_note": "Nevn at dagen er offisiell flaggdag for Kronprins Haakon Magnus' fødselsdag."
+    },
+    {
+      "month": 7,
+      "day": 29,
+      "name": "Olsokdagen",
+      "prompt_note": "Fremhev Olsokdagen som offisiell flaggdag."
+    },
+    {
+      "month": 8,
+      "day": 19,
+      "name": "H.K.H. Kronprinsesse Mette-Marits fødselsdag",
+      "prompt_note": "Nevn at dagen er offisiell flaggdag for Kronprinsesse Mette-Marits fødselsdag."
+    },
+    {
+      "month": 12,
+      "day": 25,
+      "name": "1. juledag",
+      "prompt_note": "Nevn 1. juledag som offisiell flaggdag."
+    }
+  ],
+  "movable": [
+    {
+      "rule": "easter_sunday",
+      "name": "1. påskedag",
+      "prompt_note": "Nevn at 1. påskedag er offisiell flaggdag."
+    },
+    {
+      "rule": "pentecost_sunday",
+      "name": "1. pinsedag",
+      "prompt_note": "Nevn at 1. pinsedag er offisiell flaggdag."
+    }
+  ],
+  "conditional": [
+    {
+      "rule": "stortingsvalgdag",
+      "name": "Dagen for Stortingsvalg",
+      "prompt_note": "Fremhev stortingsvalgdagen som offisiell flaggdag når datoen er lagt inn som ekstra flaggdag."
+    }
+  ]
+}
