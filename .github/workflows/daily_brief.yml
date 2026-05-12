@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Sjekk om klokka er 09 i Norge
+      - name: Sjekk om riktig cron for norsk tid
         id: norsk_tid
         shell: bash
         run: |
@@ -21,10 +21,23 @@ jobs:
             exit 0
           fi
 
-          norsk_time="$(TZ=Europe/Oslo date +%H)"
-          echo "Norsk time nå: $norsk_time"
+          if [ "${{ github.run_attempt }}" != "1" ]; then
+            echo "Dette er et manuelt re-run av en schedule-kjøring. Kjører videre."
+            echo "skal_kjore=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          if [ "$norsk_time" = "09" ]; then
+          trigger="${{ github.event.schedule }}"
+          norsk_offset="$(TZ=Europe/Oslo date +%z)"
+          norsk_tid="$(TZ=Europe/Oslo date '+%Y-%m-%d %H:%M %Z')"
+
+          echo "Planlagt cron: $trigger"
+          echo "Norsk tid nå: $norsk_tid"
+          echo "Norsk UTC-offset: $norsk_offset"
+
+          if [ "$trigger" = "0 7 * * *" ] && [ "$norsk_offset" = "+0200" ]; then
+            echo "skal_kjore=true" >> "$GITHUB_OUTPUT"
+          elif [ "$trigger" = "0 8 * * *" ] && [ "$norsk_offset" = "+0100" ]; then
             echo "skal_kjore=true" >> "$GITHUB_OUTPUT"
           else
             echo "skal_kjore=false" >> "$GITHUB_OUTPUT"
