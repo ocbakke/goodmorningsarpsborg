@@ -51,7 +51,20 @@ class GodMorgenSarpsborgTest(unittest.TestCase):
 
         self.assertIn("Grunnlovsdagen", prompt)
         self.assertIn("allerede i ingressen", prompt)
-        self.assertIn("fremhev flaggdagen først", prompt)
+        self.assertIn("fremhev flaggdagen først", prompt.lower())
+
+    def test_gemini_prompt_utelater_flaggdag_nar_det_ikke_er_flaggdag(self):
+        dato = datetime.date(2026, 5, 12)
+        prompt = gms.lag_gemini_prompt(
+            dato,
+            ["1820: Florence Nightingale ble født."],
+            {"temp": 12, "max": 16, "forhold": "lettskyet"},
+            {"opp": "04:45", "ned": "21:45"},
+            [],
+        )
+
+        self.assertNotIn("flaggdag", prompt.lower())
+        self.assertNotIn("offisiell norsk", prompt.lower())
 
     def test_epost_preview_escaper_artikkeltekst(self):
         html = gms.bygg_ferdig_epost_html("<script>alert('x')</script>", "https://example.test")

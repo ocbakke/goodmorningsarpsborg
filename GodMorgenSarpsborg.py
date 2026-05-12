@@ -321,20 +321,31 @@ def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
 
     sol_info = f"Sola står opp kl. {sol['opp']} og går ned kl. {sol['ned']}." if sol else ""
     lys_endring = beregn_dagslys_endring(morgen)
-    flaggdag_info = formater_flaggdager(flaggdager)
-    flaggdag_instruks = (
-        "Datoen er offisiell norsk flaggdag. Nevn flaggdagen naturlig allerede i ingressen, "
-        "og la den komme først under 'Dagen i dag' før øvrige historiske hendelser."
-        if flaggdager
-        else "Datoen er ikke registrert som offisiell norsk flaggdag. Ikke lag en flaggdag-vinkel."
-    )
     historiske_hendelser = chr(10).join(wiki_hendelser) if wiki_hendelser else "Ingen hendelser hentet."
+
+    if flaggdager:
+        flaggdag_data = f"Offisiell norsk flaggdag: {formater_flaggdager(flaggdager)}"
+        intro_instruks = (
+            "Datoen er offisiell norsk flaggdag. Nevn flaggdagen naturlig allerede i ingressen, "
+            "og la den komme først under 'Dagen i dag' før øvrige historiske hendelser."
+        )
+        dagen_i_dag_instruks = (
+            "Fremhev flaggdagen først. Gjenfortell deretter 3 korte hendelser fra listen over "
+            "på en engasjerende måte. Prioriter norske forhold."
+        )
+    else:
+        flaggdag_data = ""
+        intro_instruks = ""
+        dagen_i_dag_instruks = (
+            "Gjenfortell 3 korte hendelser fra listen over på en engasjerende måte. "
+            "Prioriter norske forhold."
+        )
 
     return f"""
     Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
     DATA:
     Navnedag: {navnedag}.
-    Offisiell norsk flaggdag: {flaggdag_info}
+    {flaggdag_data}
     Vær nå: {vaer['temp']} grader, {vaer['forhold']}.
     Max i dag: {vaer['max']} grader.
     Sol: {sol_info} {lys_endring}
@@ -342,9 +353,9 @@ def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
 
     STRUKTUR:
     1. Tittel: God morgen, Sarpsborg!
-    2. Intro med dato og hyggelig hilsen. {flaggdag_instruks}
+    2. Intro med dato og hyggelig hilsen. {intro_instruks}
     3. Navnedag: Nevn at {navnedag} har navnedag.
-    4. Mellomtittel: Dagen i dag (Hvis datoen er offisiell flaggdag, fremhev flaggdagen først. Gjenfortell deretter 3 korte hendelser fra listen over på en engasjerende måte. Prioriter norske forhold).
+    4. Mellomtittel: Dagen i dag ({dagen_i_dag_instruks})
     5. Mellomtittel: Været (Nevn {vaer['temp']} grader nå og at det blir opptil {vaer['max']} grader i dag. Beskriv forholdene {vaer['forhold']}. Inkluder soltider og at {lys_endring}).
     6. [Plass for værembed her].
     7. Mellomtittel: Trafikk
