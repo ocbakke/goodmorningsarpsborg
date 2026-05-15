@@ -1,0 +1,332 @@
+{
+  "source_note": "Redaksjonell liste over norske helligdager, offisielle flaggdager, tradisjonsdager og utvalgte internasjonale merkedager som ofte markeres i Norge.",
+  "fixed": [
+    {
+      "month": 1,
+      "day": 1,
+      "name": "1. nyttårsdag",
+      "category": "offentlig helligdag",
+      "summary": "Årets første dag er offentlig helligdag og markerer starten på det nye året.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 10
+    },
+    {
+      "month": 1,
+      "day": 21,
+      "name": "H.K.H. Prinsesse Ingrid Alexandras fødselsdag",
+      "category": "offisiell flaggdag",
+      "summary": "Dagen markeres som offisiell flaggdag fordi prinsesse Ingrid Alexandra er arving til den norske tronen.",
+      "flag_day": true,
+      "priority": 30
+    },
+    {
+      "month": 2,
+      "day": 6,
+      "name": "Samefolkets dag",
+      "category": "nasjonal merkedag",
+      "summary": "Samefolkets dag markerer samenes første landsmøte i Trondheim i 1917 og feires av samer i Norge, Sverige, Finland og Russland.",
+      "flag_day": true,
+      "priority": 20
+    },
+    {
+      "month": 2,
+      "day": 14,
+      "name": "Valentinsdagen",
+      "category": "uoffisiell merkedag",
+      "summary": "Valentinsdagen er en kjærlighets- og vennskapsdag som har fått bred plass også i Norge.",
+      "priority": 45
+    },
+    {
+      "month": 2,
+      "day": 21,
+      "name": "H.M. Kong Harald Vs fødselsdag",
+      "category": "offisiell flaggdag",
+      "summary": "Kongens fødselsdag er offisiell flaggdag i Norge.",
+      "flag_day": true,
+      "priority": 30
+    },
+    {
+      "month": 3,
+      "day": 8,
+      "name": "Kvinnedagen",
+      "category": "internasjonal merkedag",
+      "summary": "Den internasjonale kvinnedagen setter søkelys på likestilling, kvinners rettigheter og kampen mot diskriminering.",
+      "priority": 25
+    },
+    {
+      "month": 3,
+      "day": 16,
+      "name": "Kvenfolkets dag",
+      "category": "nasjonal merkedag",
+      "summary": "Kvenfolkets dag markerer kvensk språk, historie og kultur i Norge.",
+      "priority": 35
+    },
+    {
+      "month": 5,
+      "day": 1,
+      "name": "Arbeidernes dag",
+      "category": "offentlig høytidsdag",
+      "summary": "1. mai er arbeidernes internasjonale kampdag og en offentlig høytidsdag i Norge.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 10
+    },
+    {
+      "month": 5,
+      "day": 8,
+      "name": "Frigjøringsdagen",
+      "category": "offisiell flaggdag",
+      "summary": "Frigjøringsdagen markerer slutten på den tyske okkupasjonen av Norge 8. mai 1945.",
+      "flag_day": true,
+      "priority": 20
+    },
+    {
+      "month": 5,
+      "day": 17,
+      "name": "Grunnlovsdagen",
+      "category": "nasjonaldag og offentlig høytidsdag",
+      "summary": "17. mai markerer Grunnloven fra 1814 og feires som Norges nasjonaldag.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 5
+    },
+    {
+      "month": 6,
+      "day": 7,
+      "name": "Unionsoppløsningen 1905",
+      "category": "offisiell flaggdag",
+      "summary": "Dagen markerer Stortingets vedtak 7. juni 1905 om å oppløse unionen med Sverige.",
+      "flag_day": true,
+      "priority": 25
+    },
+    {
+      "month": 6,
+      "day": 23,
+      "name": "Sankthansaften",
+      "category": "tradisjonsdag",
+      "summary": "Sankthansaften er kvelden da mange markerer midtsommer med bål, samlinger og lokale tradisjoner.",
+      "priority": 25
+    },
+    {
+      "month": 6,
+      "day": 24,
+      "name": "Sankthans/Jonsok",
+      "category": "tradisjonsdag",
+      "summary": "Sankthans, også kalt jonsok, har røtter i markeringen av døperen Johannes og norske midtsommertradisjoner.",
+      "priority": 30
+    },
+    {
+      "month": 7,
+      "day": 4,
+      "name": "H.M. Dronning Sonjas fødselsdag",
+      "category": "offisiell flaggdag",
+      "summary": "Dronning Sonjas fødselsdag er offisiell flaggdag i Norge.",
+      "flag_day": true,
+      "priority": 30
+    },
+    {
+      "month": 7,
+      "day": 20,
+      "name": "H.K.H. Kronprins Haakon Magnus' fødselsdag",
+      "category": "offisiell flaggdag",
+      "summary": "Kronprins Haakons fødselsdag er offisiell flaggdag i Norge.",
+      "flag_day": true,
+      "priority": 30
+    },
+    {
+      "month": 7,
+      "day": 29,
+      "name": "Olsokdagen",
+      "category": "kirkelig og historisk merkedag",
+      "summary": "Olsok markerer minnet om Olav den hellige og slaget på Stiklestad i 1030.",
+      "flag_day": true,
+      "priority": 25
+    },
+    {
+      "month": 8,
+      "day": 19,
+      "name": "H.K.H. Kronprinsesse Mette-Marits fødselsdag",
+      "category": "offisiell flaggdag",
+      "summary": "Kronprinsesse Mette-Marits fødselsdag er offisiell flaggdag i Norge.",
+      "flag_day": true,
+      "priority": 30
+    },
+    {
+      "month": 10,
+      "day": 10,
+      "name": "Verdensdagen for psykisk helse",
+      "category": "internasjonal merkedag",
+      "summary": "Dagen brukes til å skape mer åpenhet om psykisk helse og levekår.",
+      "priority": 35
+    },
+    {
+      "month": 10,
+      "day": 24,
+      "name": "FN-dagen",
+      "category": "internasjonal merkedag",
+      "summary": "FN-dagen markerer at FN-pakten trådte i kraft 24. oktober 1945.",
+      "priority": 35
+    },
+    {
+      "month": 10,
+      "day": 31,
+      "name": "Halloween",
+      "category": "uoffisiell merkedag",
+      "summary": "Halloween er en uformell merkedag som særlig forbindes med utkledning, knask eller knep og høstlige grøss.",
+      "priority": 35
+    },
+    {
+      "month": 12,
+      "day": 13,
+      "name": "Luciadagen",
+      "category": "tradisjonsdag",
+      "summary": "Luciadagen markeres ofte med lysprosesjoner, sang og lussekatter i barnehager, skoler og lokalmiljø.",
+      "priority": 35
+    },
+    {
+      "month": 12,
+      "day": 24,
+      "name": "Julaften",
+      "category": "tradisjonsdag",
+      "summary": "Julaften er den viktigste familiedagen i norsk julefeiring, selv om den ikke er offentlig helligdag.",
+      "priority": 20
+    },
+    {
+      "month": 12,
+      "day": 25,
+      "name": "1. juledag",
+      "category": "offentlig helligdag",
+      "summary": "1. juledag er offentlig helligdag og markerer Jesu fødsel i kristen tradisjon.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 10
+    },
+    {
+      "month": 12,
+      "day": 26,
+      "name": "2. juledag",
+      "category": "offentlig helligdag",
+      "summary": "2. juledag er offentlig helligdag og en del av den norske julehøytiden.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "month": 12,
+      "day": 31,
+      "name": "Nyttårsaften",
+      "category": "tradisjonsdag",
+      "summary": "Nyttårsaften markerer årets siste dag og feires ofte med oppsummeringer, samlinger og fyrverkeri.",
+      "priority": 25
+    }
+  ],
+  "movable": [
+    {
+      "rule": {"type": "nth_weekday", "month": 2, "weekday": 6, "n": 2},
+      "name": "Morsdag",
+      "category": "uoffisiell merkedag",
+      "summary": "Morsdag markeres i Norge den andre søndagen i februar og brukes til å gjøre stas på mødre og morsfigurer.",
+      "priority": 25
+    },
+    {
+      "rule": {"type": "easter_offset", "days": -49},
+      "name": "Fastelavn",
+      "category": "tradisjonsdag",
+      "summary": "Fastelavn er søndagen før fastetiden og forbindes ofte med fastelavnsboller og eldre karnevals- og vårtradisjoner.",
+      "priority": 35
+    },
+    {
+      "rule": {"type": "easter_offset", "days": -7},
+      "name": "Palmesøndag",
+      "category": "kirkelig merkedag",
+      "summary": "Palmesøndag innleder den kristne påskeuken og markerer Jesu inntog i Jerusalem.",
+      "priority": 25
+    },
+    {
+      "rule": {"type": "easter_offset", "days": -3},
+      "name": "Skjærtorsdag",
+      "category": "offentlig helligdag",
+      "summary": "Skjærtorsdag er offentlig helligdag i Norge og markerer Jesu siste måltid med disiplene.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": -2},
+      "name": "Langfredag",
+      "category": "offentlig helligdag",
+      "summary": "Langfredag er offentlig helligdag og markerer Jesu korsfestelse i kristen tradisjon.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": -1},
+      "name": "Påskeaften",
+      "category": "tradisjonsdag",
+      "summary": "Påskeaften er dagen mellom langfredag og 1. påskedag, ofte preget av påsketradisjoner og fridagsliv.",
+      "priority": 20
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 0},
+      "name": "1. påskedag",
+      "category": "offentlig helligdag",
+      "summary": "1. påskedag er offentlig helligdag og markerer Jesu oppstandelse i kristen tradisjon.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 1},
+      "name": "2. påskedag",
+      "category": "offentlig helligdag",
+      "summary": "2. påskedag er offentlig helligdag og avslutter påskehelgen.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 39},
+      "name": "Kristi himmelfartsdag",
+      "category": "offentlig helligdag",
+      "summary": "Kristi himmelfartsdag er offentlig helligdag og faller 39 dager etter 1. påskedag.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 48},
+      "name": "Pinseaften",
+      "category": "tradisjonsdag",
+      "summary": "Pinseaften er dagen før 1. pinsedag og inngangen til pinsehelgen.",
+      "priority": 25
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 49},
+      "name": "1. pinsedag",
+      "category": "offentlig helligdag",
+      "summary": "1. pinsedag er offentlig helligdag og markerer Den hellige ånds komme i kristen tradisjon.",
+      "public_holiday": true,
+      "flag_day": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "easter_offset", "days": 50},
+      "name": "2. pinsedag",
+      "category": "offentlig helligdag",
+      "summary": "2. pinsedag er offentlig helligdag og avslutter pinsehelgen.",
+      "public_holiday": true,
+      "priority": 10
+    },
+    {
+      "rule": {"type": "nth_weekday", "month": 11, "weekday": 6, "n": 1},
+      "name": "Allehelgensdag",
+      "category": "kirkelig merkedag",
+      "summary": "Allehelgensdag markeres første søndag i november og brukes ofte til å minnes de døde.",
+      "priority": 25
+    },
+    {
+      "rule": {"type": "nth_weekday", "month": 11, "weekday": 6, "n": 2},
+      "name": "Farsdag",
+      "category": "uoffisiell merkedag",
+      "summary": "Farsdag markeres i Norge den andre søndagen i november og brukes til å gjøre stas på fedre og farsfigurer.",
+      "priority": 25
+    }
+  ]
+}
