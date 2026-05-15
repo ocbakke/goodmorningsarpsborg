@@ -33,6 +33,28 @@ class GodMorgenSarpsborgTest(unittest.TestCase):
         self.assertEqual([f["name"] for f in påske], ["1. påskedag"])
         self.assertEqual([f["name"] for f in pinse], ["1. pinsedag"])
 
+    def test_finner_faste_norske_merkedager(self):
+        kvinnedagen = gms.hent_norske_merkedager(datetime.date(2026, 3, 8))
+        halloween = gms.hent_norske_merkedager(datetime.date(2026, 10, 31))
+
+        self.assertIn("Kvinnedagen", [m["name"] for m in kvinnedagen])
+        self.assertIn("Halloween", [m["name"] for m in halloween])
+
+    def test_finner_morsdag_og_farsdag(self):
+        morsdag = gms.hent_norske_merkedager(datetime.date(2026, 2, 8))
+        farsdag = gms.hent_norske_merkedager(datetime.date(2026, 11, 8))
+
+        self.assertEqual([m["name"] for m in morsdag], ["Morsdag"])
+        self.assertEqual([m["name"] for m in farsdag], ["Farsdag"])
+
+    def test_finner_bevegelige_helligdager_som_merkedager(self):
+        langfredag = gms.hent_norske_merkedager(datetime.date(2026, 4, 3))
+        kristi_himmelfartsdag = gms.hent_norske_merkedager(datetime.date(2026, 5, 14))
+
+        self.assertEqual([m["name"] for m in langfredag], ["Langfredag"])
+        self.assertTrue(langfredag[0]["public_holiday"])
+        self.assertEqual([m["name"] for m in kristi_himmelfartsdag], ["Kristi himmelfartsdag"])
+
     def test_kan_legge_inn_ekstra_flaggdag_for_stortingsvalg(self):
         with patch.dict(os.environ, {"EKSTRA_FLAGGDAGER": "2029-09-10=Stortingsvalgdag"}):
             flaggdager = gms.hent_offisielle_flaggdager(datetime.date(2029, 9, 10))
@@ -52,6 +74,21 @@ class GodMorgenSarpsborgTest(unittest.TestCase):
         self.assertIn("Grunnlovsdagen", prompt)
         self.assertIn("allerede i ingressen", prompt)
         self.assertIn("fremhev flaggdagen først", prompt.lower())
+
+    def test_gemini_prompt_tar_med_merkedag_uten_flaggdag(self):
+        dato = datetime.date(2026, 10, 31)
+        prompt = gms.lag_gemini_prompt(
+            dato,
+            ["1517: Martin Luther offentliggjorde sine teser."],
+            {"temp": 8, "max": 10, "forhold": "regn"},
+            {"opp": "07:30", "ned": "16:30"},
+            [],
+        )
+
+        self.assertIn("Halloween", prompt)
+        self.assertIn("Norske merkedager", prompt)
+        self.assertIn("forklar kort hva dagen markerer i Norge", prompt)
+        self.assertNotIn("Offisiell norsk flaggdag", prompt)
 
     def test_gemini_prompt_utelater_flaggdag_nar_det_ikke_er_flaggdag(self):
         dato = datetime.date(2026, 5, 12)

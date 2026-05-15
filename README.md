@@ -6,6 +6,7 @@ Skriptet henter:
 
 - navnedag fra `data/navnedager.json`
 - offisielle norske flaggdager fra `data/offisielle_flaggdager.json`
+- norske helligdager, tradisjonsdager og andre merkedager fra `data/norske_merkedager.json`
 - værvarsel og soltider fra MET
 - historiske hendelser fra Wikipedia
 - artikkeltekst fra Gemini
@@ -73,6 +74,19 @@ export EKSTRA_FLAGGDAGER="2029-09-10=Stortingsvalgdag"
 ```
 
 Når datoen er en offisiell flaggdag, får Gemini beskjed om å nevne dette tidlig i ingressen og først under "Dagen i dag".
+
+## Norske merkedager
+
+`data/norske_merkedager.json` inneholder en redaksjonell liste over norske helligdager, offisielle flaggdager, tradisjonsdager og utvalgte internasjonale merkedager som ofte markeres i Norge.
+
+Listen dekker blant annet:
+
+- offentlige helligdager: 1. nyttårsdag, skjærtorsdag, langfredag, 1. og 2. påskedag, Kristi himmelfartsdag, 1. og 2. pinsedag, 1. og 2. juledag
+- offentlige høytidsdager og flaggdager: 1. mai, 17. mai, Samefolkets dag, Frigjøringsdagen, Olsok og kongefamiliens offisielle flaggdager
+- tradisjonsdager og uoffisielle merkedager: morsdag, farsdag, fastelavn, Sankthans, Halloween, Luciadagen, julaften og nyttårsaften
+- internasjonale merkedager som ofte omtales lokalt: Kvinnedagen, FN-dagen og Verdensdagen for psykisk helse
+
+Når datoen har en merkedag, får Gemini en egen datalinje med kort forklaring. Prompten ber modellen forklare hva dagen markerer og skille mellom offentlig helligdag, flaggdag og uoffisiell/tradisjonell merkedag.
 
 ## Tester
 
