@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 OSLO_TZ = zoneinfo.ZoneInfo("Europe/Oslo")
 
-GEMINI_MODELL = os.environ.get("GEMINI_MODELL", "gemini-3.0-flash")
+GEMINI_MODELL = os.environ.get("GEMINI_MODELL", "gemini-3-flash-preview")
 HTTP_TIMEOUT_SECONDS = float(os.environ.get("HTTP_TIMEOUT_SECONDS", "10"))
 SMTP_TIMEOUT_SECONDS = float(os.environ.get("SMTP_TIMEOUT_SECONDS", "30"))
 
