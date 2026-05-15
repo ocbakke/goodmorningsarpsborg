@@ -161,6 +161,61 @@ def formater_flaggdager(flaggdager):
     return "; ".join(f"{f['name']} ({f.get('prompt_note', 'offisiell flaggdag')})" for f in flaggdager)
 
 
+def finn_nte_ukedag_i_måned(år, måned, ukedag, nummer):
+    """Returnerer n-te ukedag i en måned, der mandag=0 og søndag=6."""
+    første_dag = datetime.date(år, måned, 1)
+    dager_til_ukedag = (ukedag - første_dag.weekday()) % 7
+    dato = første_dag + datetime.timedelta(days=dager_til_ukedag + (nummer - 1) * 7)
+    if dato.month != måned:
+        raise ValueError(f"Fant ikke ukedag {ukedag} nummer {nummer} i {måned}/{år}")
+    return dato
+
+
+def beregn_merkedag_dato(regel, år):
+    """Beregner dato for en bevegelig merkedag."""
+    regeltype = regel.get("type")
+    if regeltype == "easter_offset":
+        return beregn_paskedag(år) + datetime.timedelta(days=regel["days"])
+    if regeltype == "nth_weekday":
+        return finn_nte_ukedag_i_måned(år, regel["month"], regel["weekday"], regel["n"])
+    raise ValueError(f"Ukjent merkedag-regel: {regeltype}")
+
+
+def hent_norske_merkedager(dato):
+    """Returnerer norske helligdager, tradisjonsdager og andre merkedager."""
+    data = last_json_fil("norske_merkedager.json")
+    treff = []
+
+    for merkedag in data.get("fixed", []):
+        if merkedag["month"] == dato.month and merkedag["day"] == dato.day:
+            treff.append({**merkedag, "type": "fast"})
+
+    for merkedag in data.get("movable", []):
+        if beregn_merkedag_dato(merkedag["rule"], dato.year) == dato:
+            treff.append({k: v for k, v in merkedag.items() if k != "rule"} | {"type": "bevegelig"})
+
+    return sorted(treff, key=lambda merkedag: merkedag.get("priority", 50))
+
+
+def formater_merkedager(merkedager):
+    if not merkedager:
+        return "Ingen særskilt norsk merkedag registrert."
+
+    deler = []
+    for merkedag in merkedager:
+        statuser = []
+        if merkedag.get("public_holiday"):
+            statuser.append("offentlig fridag/helligdag")
+        if merkedag.get("flag_day"):
+            statuser.append("offisiell flaggdag")
+
+        kategori = merkedag.get("category", "merkedag")
+        status = f", {', '.join(statuser)}" if statuser else ""
+        deler.append(f"{merkedag['name']} ({kategori}{status}): {merkedag['summary']}")
+
+    return "; ".join(deler)
+
+
 def hent_vaer_data(mål_dato):
     """Henter utvidet værdata for Sarpsborg fra Met.no"""
     url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=59.28&lon=11.11"
@@ -309,8 +364,9 @@ def hent_wikipedia_data(måned, dag):
         return []
 
 
-def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
+def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager, merkedager=None):
     """Lager prompten slik at den kan testes uten Gemini-kall."""
+    merkedager = hent_norske_merkedager(morgen) if merkedager is None else merkedager
     navnedag = hent_navnedag(morgen.month, morgen.day)
     ukedag = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"][morgen.weekday()]
     måned_navn = [
@@ -322,6 +378,7 @@ def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
     sol_info = f"Sola står opp kl. {sol['opp']} og går ned kl. {sol['ned']}." if sol else ""
     lys_endring = beregn_dagslys_endring(morgen)
     historiske_hendelser = chr(10).join(wiki_hendelser) if wiki_hendelser else "Ingen hendelser hentet."
+    merkedag_data = f"Norske merkedager: {formater_merkedager(merkedager)}" if merkedager else ""
 
     if flaggdager:
         flaggdag_data = f"Offisiell norsk flaggdag: {formater_flaggdager(flaggdager)}"
@@ -341,11 +398,30 @@ def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
             "Prioriter norske forhold."
         )
 
+    if merkedager:
+        intro_instruks = (
+            f"{intro_instruks} Nevn dagens merkedag naturlig i ingressen hvis det passer, "
+            "uten å gjøre introen tung."
+        ).strip()
+        if flaggdager:
+            dagen_i_dag_instruks = (
+                "Fremhev flaggdagen først. Bruk deretter dagens merkedag-data til å forklare kort "
+                "hva dagen markerer, før du gjenforteller 2-3 korte historiske hendelser. "
+                "Skill tydelig mellom offentlig helligdag, flaggdag og uoffisiell/tradisjonell merkedag."
+            )
+        else:
+            dagen_i_dag_instruks = (
+                "Start med dagens merkedag og forklar kort hva dagen markerer i Norge. "
+                "Gjenfortell deretter 2-3 korte historiske hendelser fra listen. "
+                "Skill tydelig mellom offentlig helligdag og uoffisiell/tradisjonell merkedag."
+            )
+
     return f"""
     Du er journalist i Sarpsborg Arbeiderblad. Skriv spalten "God morgen, Sarpsborg!" for {dato_full}.
     DATA:
     Navnedag: {navnedag}.
     {flaggdag_data}
+    {merkedag_data}
     Vær nå: {vaer['temp']} grader, {vaer['forhold']}.
     Max i dag: {vaer['max']} grader.
     Sol: {sol_info} {lys_endring}
@@ -370,14 +446,14 @@ def lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager):
     """
 
 
-def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol, flaggdager, gemini_api_key=None):
+def generer_artikkeltekst(morgen, wiki_hendelser, vaer, sol, flaggdager, merkedager=None, gemini_api_key=None):
     """Bruker Gemini for å skrive selve teksten."""
     try:
         from google import genai
     except ImportError as exc:
         raise RuntimeError("Mangler avhengighet: google-genai. Kjør `pip install -r requirements.txt`.") from exc
 
-    prompt = lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager)
+    prompt = lag_gemini_prompt(morgen, wiki_hendelser, vaer, sol, flaggdager, merkedager)
     client = genai.Client(api_key=gemini_api_key or hent_påkrevd_env("GEMINI_API_KEY"))
     try:
         res = client.models.generate_content(model=GEMINI_MODELL, contents=prompt)
@@ -458,12 +534,23 @@ def hovedprosess(dry_run=False, mål_dato=None):
     flaggdager = hent_offisielle_flaggdager(mål_dato)
     if flaggdager:
         logger.info("Offisiell flaggdag: %s", formater_flaggdager(flaggdager))
+    merkedager = hent_norske_merkedager(mål_dato)
+    if merkedager:
+        logger.info("Norsk merkedag: %s", formater_merkedager(merkedager))
 
     wiki = hent_wikipedia_data(mål_dato.month, mål_dato.day)
     vaer = hent_vaer_data(mål_dato)
     sol = hent_sol_data(mål_dato)
 
-    artikkel = generer_artikkeltekst(mål_dato, wiki, vaer, sol, flaggdager, gemini_api_key=gemini_api_key)
+    artikkel = generer_artikkeltekst(
+        mål_dato,
+        wiki,
+        vaer,
+        sol,
+        flaggdager,
+        merkedager,
+        gemini_api_key=gemini_api_key,
+    )
     cue_url = lag_cue_lenke("God morgen, Sarpsborg!", artikkel)
     html_epost = bygg_ferdig_epost_html(artikkel, cue_url)
 
@@ -471,14 +558,15 @@ def hovedprosess(dry_run=False, mål_dato=None):
         print("DRY RUN: E-post blir ikke sendt.")
         print(f"Dato: {mål_dato.isoformat()}")
         print(f"Flaggdag: {formater_flaggdager(flaggdager)}")
+        print(f"Merkedag: {formater_merkedager(merkedager)}")
         print(f"Cue-lenke: {cue_url}")
         print("\n--- Artikkeltekst ---\n")
         print(artikkel)
-        return {"artikkel": artikkel, "cue_url": cue_url, "flaggdager": flaggdager}
+        return {"artikkel": artikkel, "cue_url": cue_url, "flaggdager": flaggdager, "merkedager": merkedager}
 
     send_epost(html_epost, mål_dato, email_sender, email_password)
     logger.info("E-post sendt til %s", EMAIL_RECEIVER)
-    return {"artikkel": artikkel, "cue_url": cue_url, "flaggdager": flaggdager}
+    return {"artikkel": artikkel, "cue_url": cue_url, "flaggdager": flaggdager, "merkedager": merkedager}
 
 
 def main(argv=None):
