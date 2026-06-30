@@ -3,6 +3,7 @@ import datetime
 import html
 import json
 import logging
+import math
 import os
 import smtplib
 import sys
@@ -241,16 +242,51 @@ def hent_vaer_data(mål_dato):
         return {"temp": "ukjent", "max": "ukjent", "min": "ukjent", "forhold": "varierende", "neste_6h": "varierende"}
 
 
-def beregn_dagslys_endring(dato):
-    """Beregner endring i dagslys siden siste solverv"""
-    solverv = datetime.date(dato.year if dato.month > 6 else dato.year - 1, 12, 21)
-    if dato.month > 6 and dato.day > 21:
-        solverv = datetime.date(dato.year, 6, 21)
+def beregn_dagslengde_minutter(dato, breddegrad=59.28):
+    """Anslår dagslengden med solgeometri for Sarpsborgs breddegrad."""
+    dag_i_året = dato.timetuple().tm_yday
+    dager_i_året = (datetime.date(dato.year + 1, 1, 1) - datetime.date(dato.year, 1, 1)).days
+    fraksjonelt_år = 2 * math.pi / dager_i_året * (dag_i_året - 1)
 
-    dager_siden = abs((dato - solverv).days)
-    minutter = round(dager_siden * 4)
-    status = "lengre" if solverv.month == 12 else "kortere"
-    return f"Dagen er nå ca. {minutter} minutter {status} enn ved solverv."
+    # NOAA-tilnærming for solas deklinasjon gjennom året.
+    deklinasjon = (
+        0.006918
+        - 0.399912 * math.cos(fraksjonelt_år)
+        + 0.070257 * math.sin(fraksjonelt_år)
+        - 0.006758 * math.cos(2 * fraksjonelt_år)
+        + 0.000907 * math.sin(2 * fraksjonelt_år)
+        - 0.002697 * math.cos(3 * fraksjonelt_år)
+        + 0.00148 * math.sin(3 * fraksjonelt_år)
+    )
+    breddegrad_radianer = math.radians(breddegrad)
+    soloppgang_senit = math.radians(90.833)
+    timevinkel_cos = (
+        math.cos(soloppgang_senit) - math.sin(breddegrad_radianer) * math.sin(deklinasjon)
+    ) / (math.cos(breddegrad_radianer) * math.cos(deklinasjon))
+    timevinkel = math.acos(max(-1, min(1, timevinkel_cos)))
+    return 8 * math.degrees(timevinkel)
+
+
+def beregn_dagslys_endring(dato):
+    """Beregner endring i dagslys siden siste sommer- eller vintersolverv."""
+    sommersolverv = datetime.date(dato.year, 6, 21)
+    vintersolverv = datetime.date(dato.year, 12, 21)
+
+    if sommersolverv <= dato < vintersolverv:
+        solverv = sommersolverv
+        solverv_navn = "sommersolverv"
+        status = "kortere"
+    else:
+        solverv = vintersolverv if dato >= vintersolverv else datetime.date(dato.year - 1, 12, 21)
+        solverv_navn = "vintersolverv"
+        status = "lengre"
+
+    endring = abs(beregn_dagslengde_minutter(dato) - beregn_dagslengde_minutter(solverv))
+    if dato == solverv:
+        return f"Dagen er ikke blitt {status} siden {solverv_navn}, som er i dag."
+    if endring < 1:
+        return f"Dagen er blitt mindre enn ett minutt {status} siden {solverv_navn}."
+    return f"Dagen er blitt ca. {round(endring)} minutter {status} siden {solverv_navn}."
 
 
 def hent_sol_data(dato):

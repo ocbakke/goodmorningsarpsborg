@@ -22,6 +22,23 @@ class GodMorgenSarpsborgTest(unittest.TestCase):
     def test_beregner_paskedag(self):
         self.assertEqual(gms.beregn_paskedag(2026), datetime.date(2026, 4, 5))
 
+    def test_dagslys_skifter_retning_ved_solverv(self):
+        self.assertIn("lengre siden vintersolverv", gms.beregn_dagslys_endring(datetime.date(2026, 6, 20)))
+        self.assertEqual(
+            gms.beregn_dagslys_endring(datetime.date(2026, 6, 21)),
+            "Dagen er ikke blitt kortere siden sommersolverv, som er i dag.",
+        )
+        self.assertEqual(
+            gms.beregn_dagslys_endring(datetime.date(2026, 6, 30)),
+            "Dagen er blitt ca. 5 minutter kortere siden sommersolverv.",
+        )
+        self.assertIn("kortere siden sommersolverv", gms.beregn_dagslys_endring(datetime.date(2026, 12, 20)))
+        self.assertEqual(
+            gms.beregn_dagslys_endring(datetime.date(2026, 12, 21)),
+            "Dagen er ikke blitt lengre siden vintersolverv, som er i dag.",
+        )
+        self.assertIn("lengre siden vintersolverv", gms.beregn_dagslys_endring(datetime.date(2026, 12, 22)))
+
     def test_finner_fast_offisiell_flaggdag(self):
         flaggdager = gms.hent_offisielle_flaggdager(datetime.date(2026, 5, 17))
         self.assertEqual([f["name"] for f in flaggdager], ["Grunnlovsdagen"])
