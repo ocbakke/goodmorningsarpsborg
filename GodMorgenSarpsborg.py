@@ -272,24 +272,21 @@ def beregn_dagslys_endring(dato):
     sommersolverv = datetime.date(dato.year, 6, 21)
     vintersolverv = datetime.date(dato.year, 12, 21)
 
-    if dato == sommersolverv:
-        return "Dagen er nå på sitt lengste, ved sommersolverv."
-    if dato == vintersolverv:
-        return "Dagen er nå på sitt korteste, ved vintersolverv."
-
-    if sommersolverv < dato < vintersolverv:
+    if sommersolverv <= dato < vintersolverv:
         solverv = sommersolverv
         solverv_navn = "sommersolverv"
         status = "kortere"
     else:
-        solverv = vintersolverv if dato > vintersolverv else datetime.date(dato.year - 1, 12, 21)
+        solverv = vintersolverv if dato >= vintersolverv else datetime.date(dato.year - 1, 12, 21)
         solverv_navn = "vintersolverv"
         status = "lengre"
 
-    minutter = round(abs(beregn_dagslengde_minutter(dato) - beregn_dagslengde_minutter(solverv)))
-    if minutter == 0:
-        return f"Dagen er nå omtrent like lang som ved {solverv_navn}, men blir gradvis {status}."
-    return f"Dagen er nå ca. {minutter} minutter {status} enn ved {solverv_navn}."
+    endring = abs(beregn_dagslengde_minutter(dato) - beregn_dagslengde_minutter(solverv))
+    if dato == solverv:
+        return f"Dagen er ikke blitt {status} siden {solverv_navn}, som er i dag."
+    if endring < 1:
+        return f"Dagen er blitt mindre enn ett minutt {status} siden {solverv_navn}."
+    return f"Dagen er blitt ca. {round(endring)} minutter {status} siden {solverv_navn}."
 
 
 def hent_sol_data(dato):
