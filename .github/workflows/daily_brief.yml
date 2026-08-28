@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Sjekk om riktig cron for norsk tid
         id: norsk_tid
@@ -45,11 +46,11 @@ jobs:
 
       - name: Sjekk ut kode
         if: steps.norsk_tid.outputs.skal_kjore == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sett opp Python
         if: steps.norsk_tid.outputs.skal_kjore == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.10'
 
